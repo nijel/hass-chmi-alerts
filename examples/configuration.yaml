@@ -25,53 +25,53 @@
 
 # Use in automations:
 automation:
-  - alias: "Severe Weather Alert Notification (using awareness level)"
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.cap_alerts_alert
-        to: "on"
-    condition:
-      - condition: template
-        value_template: >
-          {# Check for Orange (3) or Red (4) awareness levels #}
-          {% set level = state_attr('binary_sensor.cap_alerts_alert', 'awareness_level') %}
-          {{ level and (level.startswith('3;') or level.startswith('4;')) }}
-    action:
-      - service: notify.mobile_app
-        data:
-          title: "⚠️ Weather Alert!"
-          message: >
-            {{ state_attr('binary_sensor.cap_alerts_alert', 'awareness_type') }}
-            Active alerts: {{ state_attr('binary_sensor.cap_alerts_alert', 'alert_count') }}
+- alias: Severe Weather Alert Notification (using awareness level)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.cap_alerts_alert
+    to: on
+  condition:
+  - condition: template
+    value_template: >
+      {# Check for Orange (3) or Red (4) awareness levels #}
+      {% set level = state_attr('binary_sensor.cap_alerts_alert', 'awareness_level') %}
+      {{ level and (level.startswith('3;') or level.startswith('4;')) }}
+  action:
+  - service: notify.mobile_app
+    data:
+      title: ⚠️ Weather Alert!
+      message: >
+        {{ state_attr('binary_sensor.cap_alerts_alert', 'awareness_type') }}
+        Active alerts: {{ state_attr('binary_sensor.cap_alerts_alert', 'alert_count') }}
 
-  - alias: "Severe Weather Alert Notification (using alert details)"
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.cap_alerts_alert
-        to: "on"
-    condition:
-      - condition: template
-        value_template: >
-          {% set alerts = state_attr('binary_sensor.cap_alerts_alert', 'alerts') %}
-          {{ alerts and alerts[0].severity in ['Severe', 'Extreme'] }}
-    action:
-      - service: notify.mobile_app
-        data:
-          title: "⚠️ Weather Alert!"
-          message: >
-            {% set alert = state_attr('binary_sensor.cap_alerts_alert', 'alerts')[0] %}
-            {{ alert.headline }}
-            
-            Severity: {{ alert.severity }}
-            Areas: {{ alert.area }}
+- alias: Severe Weather Alert Notification (using alert details)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.cap_alerts_alert
+    to: on
+  condition:
+  - condition: template
+    value_template: >
+      {% set alerts = state_attr('binary_sensor.cap_alerts_alert', 'alerts') %}
+      {{ alerts and alerts[0].severity in ['Severe', 'Extreme'] }}
+  action:
+  - service: notify.mobile_app
+    data:
+      title: ⚠️ Weather Alert!
+      message: >
+        {% set alert = state_attr('binary_sensor.cap_alerts_alert', 'alerts')[0] %}
+        {{ alert.headline }}
 
-  - alias: "Clear Weather Alert"
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.cap_alerts_alert
-        to: "off"
-    action:
-      - service: notify.mobile_app
-        data:
-          title: "✅ Weather Alert Cleared"
-          message: "All weather alerts have been cleared."
+        Severity: {{ alert.severity }}
+        Areas: {{ alert.area }}
+
+- alias: Clear Weather Alert
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.cap_alerts_alert
+    to: off
+  action:
+  - service: notify.mobile_app
+    data:
+      title: ✅ Weather Alert Cleared
+      message: All weather alerts have been cleared.

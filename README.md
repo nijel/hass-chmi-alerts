@@ -16,23 +16,23 @@ A Home Assistant custom integration for fetching and displaying CAP (Common Aler
 ### HACS (Recommended)
 
 1. Add this repository as a custom repository in HACS
-2. Search for "CAP Alerts" in HACS
-3. Click Install
-4. Restart Home Assistant
+1. Search for "CAP Alerts" in HACS
+1. Click Install
+1. Restart Home Assistant
 
 ### Manual Installation
 
 1. Copy the `custom_components/cap_alerts` directory to your Home Assistant's `custom_components` directory
-2. Restart Home Assistant
+1. Restart Home Assistant
 
 ## Configuration
 
 The integration is configured through the Home Assistant UI:
 
 1. Go to **Settings** → **Devices & Services**
-2. Click **Add Integration**
-3. Search for "CAP Alerts"
-4. Enter the configuration:
+1. Click **Add Integration**
+1. Search for "CAP Alerts"
+1. Enter the configuration:
    - **CAP Feed URL**: The URL of the CAP XML feed (default: CHMI alerts)
    - **Area Filter** (optional): Filter alerts by area name or geocode (e.g., "Prague", "2102", "CZ02102")
    - **Update Interval**: How often to check for new alerts in seconds (default: 300)
@@ -40,6 +40,7 @@ The integration is configured through the Home Assistant UI:
 ### Area Filtering
 
 The area filter supports multiple matching modes:
+
 - **Area names**: Filter by area description (e.g., "Prague", "Středočeský kraj")
 - **Geocode values**: Filter by CISORP codes (e.g., "2102"), EMMA_ID codes (e.g., "CZ02102"), or any other geocode value
 - **Partial matching**: Case-insensitive substring matching (e.g., "Bohemia" matches "Central Bohemia")
@@ -47,6 +48,7 @@ The area filter supports multiple matching modes:
 ### Example Configurations
 
 #### CHMI (Czech Republic)
+
 - **Feed URL**: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
 - **Area Filter**: `Prague` (to see only alerts for Prague area)
 - **Area Filter**: `2102` (to see only alerts for region with CISORP code 2102)
@@ -55,6 +57,7 @@ The area filter supports multiple matching modes:
 #### Multiple Instances
 
 You can add multiple instances of the integration to monitor different feeds or areas:
+
 - One instance for all CHMI alerts
 - Another instance filtered for a specific region by name
 - Another instance filtered for a specific region by geocode
@@ -87,13 +90,16 @@ After configuration, the integration creates a binary sensor entity showing aler
 The binary sensor provides meteoalarm-compatible attributes, making it easy to use with cards and automations designed for the built-in meteoalarm integration and custom cards like [MeteoalarmCard](https://github.com/MrBartusek/MeteoalarmCard):
 
 - **Binary Sensor State**: `on` when alerts are active, `off` when no alerts (matches meteoalarm integration)
+
 - **Awareness Levels** (in attributes):
+
   - 🟢 Green: No alerts
   - 🟡 Yellow: Minor severity alerts
   - 🟠 Orange: Moderate/Severe alerts
   - 🔴 Red: Extreme alerts
 
 - **Format**: Attributes use MeteoalarmCard-compatible format:
+
   - `awareness_level`: "2; Yellow", "3; Orange", "4; Red"
   - `awareness_type`: "1; Wind", "10; Rain", etc.
 
@@ -132,7 +138,7 @@ automation:
           title: "⚠️ Weather Alert!"
           message: >
             {{ state_attr('binary_sensor.cap_alerts_alert', 'awareness_type') }}
-            
+
   - alias: "Notify on any new alert"
     trigger:
       - platform: state
@@ -160,24 +166,24 @@ card:
   type: markdown
   content: >
     ## Weather Alerts - {{ states('binary_sensor.cap_alerts_alert') | upper }}
-    
+
     **Type:** {{ state_attr('binary_sensor.cap_alerts_alert', 'awareness_type') }}
-    
+
     **Active Alerts:** {{ state_attr('binary_sensor.cap_alerts_alert', 'alert_count') }}
-    
+
     ---
-    
+
     {% set alerts = state_attr('binary_sensor.cap_alerts_alert', 'alerts') %}
     {% if alerts %}
       {% for alert in alerts %}
         **{{ alert.headline }}**
-        
+
         *Severity: {{ alert.severity }} | Level: {{ alert.awareness_level }}*
-        
+
         {{ alert.description }}
-        
+
         Areas: {{ alert.area }}
-        
+
         ---
       {% endfor %}
     {% endif %}

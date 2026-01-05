@@ -7,9 +7,9 @@ Copy `custom_components/cap_alerts` to your Home Assistant `config/custom_compon
 ## 2. Configure
 
 1. Go to **Settings** → **Devices & Services**
-2. Click **+ Add Integration**
-3. Search for "CAP Alerts"
-4. Enter:
+1. Click **+ Add Integration**
+1. Search for "CAP Alerts"
+1. Enter:
    - **Feed URL**: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml` (for CHMI)
    - **Area Filter**: Leave empty for all alerts, or enter area name (e.g., "Prague") or geocode (e.g., "2102", "CZ02102")
    - **Update Interval**: `300` (5 minutes)
@@ -34,8 +34,8 @@ card:
     {% for alert in alerts %}
       ## {{ alert.headline }}
       {{ alert.description }}
-      
-      **Severity:** {{ alert.severity }}  
+
+      **Severity:** {{ alert.severity }}
       **Areas:** {{ alert.area }}
     {% endfor %}
 ```
@@ -60,6 +60,7 @@ automation:
 ## Alert Attributes
 
 Each alert includes:
+
 - `headline` - Brief description
 - `description` - Detailed description
 - `severity` - Minor, Moderate, Severe, Extreme
@@ -74,5 +75,6 @@ Each alert includes:
 ## Supported Feeds
 
 Any CAP 1.2 compliant XML feed:
+
 - CHMI (Czech): `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
 - Other meteorological services with CAP feeds

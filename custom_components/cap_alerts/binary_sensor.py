@@ -1,4 +1,5 @@
 """Binary sensor platform for CAP Alerts integration."""
+
 from __future__ import annotations
 
 import logging
@@ -13,7 +14,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .cap_parser import CAPAlert
 from .const import (
     ATTR_AREA,
     ATTR_AWARENESS_LEVEL,
@@ -57,12 +57,14 @@ async def async_setup_entry(
     async_add_entities([CAPAlertsBinarySensor(coordinator, entry)])
 
 
-class CAPAlertsBinarySensor(CoordinatorEntity[CAPAlertsCoordinator], BinarySensorEntity):
+class CAPAlertsBinarySensor(
+    CoordinatorEntity[CAPAlertsCoordinator], BinarySensorEntity
+):
     """Binary sensor showing CAP alerts with meteoalarm compatibility."""
 
     _attr_has_entity_name = True
     _attr_device_class = BinarySensorDeviceClass.SAFETY
-    
+
     # Priority order for awareness levels: red > orange > yellow > green
     _LEVEL_PRIORITY = {
         AWARENESS_LEVEL_RED: 4,
@@ -85,66 +87,65 @@ class CAPAlertsBinarySensor(CoordinatorEntity[CAPAlertsCoordinator], BinarySenso
         """Get the highest awareness level from active alerts."""
         if not self.coordinator.data:
             return AWARENESS_LEVEL_GREEN
-        
+
         highest_level = AWARENESS_LEVEL_GREEN
         highest_priority = 0
-        
+
         for alert in self.coordinator.data:
             awareness = SEVERITY_TO_AWARENESS.get(alert.severity, AWARENESS_LEVEL_GREEN)
             priority = self._LEVEL_PRIORITY.get(awareness, 0)
             if priority > highest_priority:
                 highest_priority = priority
                 highest_level = awareness
-        
+
         return highest_level
 
     def _get_meteoalarm_event_type(self, event: str) -> str:
         """Convert CAP event type to MeteoalarmCard format.
-        
+
         Returns event in format "N; EventName" where N is the event type ID.
         Falls back to generic event if no specific mapping exists.
         """
         if not event:
             return "1; Wind"  # Default fallback
-        
+
         # Try exact match first
         if event in EVENT_TYPE_METEOALARM:
             return EVENT_TYPE_METEOALARM[event]
-        
+
         # Try partial match (case insensitive)
         event_lower = event.lower()
         for key, value in EVENT_TYPE_METEOALARM.items():
             if key.lower() in event_lower or event_lower in key.lower():
                 return value
-        
+
         # Fallback based on keywords
         # NOTE: Order matters - check more specific conditions (rain without flood) before general ones
         if "flood" in event_lower:
             # Check flood first since it's more specific
             return "12; Flooding"
-        elif "rain" in event_lower:
+        if "rain" in event_lower:
             return "10; Rain"
-        elif any(word in event_lower for word in ["wind", "storm", "gale"]):
+        if any(word in event_lower for word in ["wind", "storm", "gale"]):
             return "1; Wind"
-        elif any(word in event_lower for word in ["snow", "ice", "winter"]):
+        if any(word in event_lower for word in ["snow", "ice", "winter"]):
             return "2; Snow/Ice"
-        elif any(word in event_lower for word in ["thunder", "lightning"]):
+        if any(word in event_lower for word in ["thunder", "lightning"]):
             return "3; Thunderstorm"
-        elif "fog" in event_lower:
+        if "fog" in event_lower:
             return "4; Fog"
-        elif any(word in event_lower for word in ["heat", "hot", "high temp"]):
+        if any(word in event_lower for word in ["heat", "hot", "high temp"]):
             return "5; High Temperature"
-        elif any(word in event_lower for word in ["cold", "freeze", "low temp"]):
+        if any(word in event_lower for word in ["cold", "freeze", "low temp"]):
             return "6; Low Temperature"
-        elif any(word in event_lower for word in ["coastal", "sea", "tide"]):
+        if any(word in event_lower for word in ["coastal", "sea", "tide"]):
             return "7; Coastal Event"
-        elif "fire" in event_lower:
+        if "fire" in event_lower:
             return "8; Forest Fire"
-        elif any(word in event_lower for word in ["avalanche", "snow slide"]):
+        if any(word in event_lower for word in ["avalanche", "snow slide"]):
             return "9; Avalanches"
-        else:
-            # Generic fallback - use wind as most common
-            return "1; Wind"
+        # Generic fallback - use wind as most common
+        return "1; Wind"
 
     @property
     def is_on(self) -> bool:
@@ -171,7 +172,7 @@ class CAPAlertsBinarySensor(CoordinatorEntity[CAPAlertsCoordinator], BinarySenso
         # Get the alert with the highest severity
         highest_alert = None
         highest_priority = 0
-        
+
         for alert in self.coordinator.data:
             awareness = SEVERITY_TO_AWARENESS.get(alert.severity, AWARENESS_LEVEL_GREEN)
             priority = self._LEVEL_PRIORITY.get(awareness, 0)
@@ -182,10 +183,12 @@ class CAPAlertsBinarySensor(CoordinatorEntity[CAPAlertsCoordinator], BinarySenso
         # Include details of all active alerts
         alerts_details = []
         for alert in self.coordinator.data:
-            awareness_level = SEVERITY_TO_AWARENESS.get(alert.severity, AWARENESS_LEVEL_GREEN)
+            awareness_level = SEVERITY_TO_AWARENESS.get(
+                alert.severity, AWARENESS_LEVEL_GREEN
+            )
             meteoalarm_level = AWARENESS_LEVEL_METEOALARM[awareness_level]
             meteoalarm_type = self._get_meteoalarm_event_type(alert.event)
-            
+
             alert_info = {
                 "identifier": alert.identifier,
                 ATTR_HEADLINE: alert.headline,

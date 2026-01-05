@@ -37,7 +37,7 @@ AWARENESS_LEVEL_RED = "red"
 # CAP Severity to awareness level mapping
 # Maps CAP severity levels to meteoalarm-compatible awareness levels:
 # - Minor: Yellow (Be aware)
-# - Moderate/Severe: Orange (Be prepared) 
+# - Moderate/Severe: Orange (Be prepared)
 # - Extreme: Red (Take action)
 SEVERITY_TO_AWARENESS = {
     "Minor": AWARENESS_LEVEL_YELLOW,

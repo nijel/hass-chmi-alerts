@@ -13,6 +13,7 @@ CAP (Common Alerting Protocol) is an international standard (OASIS) for public w
 ### Core Components
 
 1. **CAP Parser (`cap_parser.py`)**
+
    - Parses CAP 1.2 XML format
    - Supports both direct CAP XML and Atom feeds containing CAP alerts
    - Extracts all standard CAP fields (severity, urgency, certainty, etc.)
@@ -20,24 +21,28 @@ CAP (Common Alerting Protocol) is an international standard (OASIS) for public w
    - Handles multiple info sections and areas per alert
    - Case-insensitive area and geocode filtering
 
-2. **Data Coordinator (`coordinator.py`)**
+1. **Data Coordinator (`coordinator.py`)**
+
    - Fetches CAP feeds asynchronously using aiohttp
    - Configurable update intervals (default: 5 minutes)
    - Proper error handling and timeout management
    - Filters alerts based on user-defined area or geocode filter
 
-3. **Sensor Platform (`sensor.py`)**
+1. **Sensor Platform (`sensor.py`)**
+
    - Creates a sensor showing the count of active alerts
    - Stores all alert details in sensor attributes
    - Each alert includes: headline, description, severity, urgency, certainty, event, areas, times, instructions
 
-4. **Config Flow (`config_flow.py`)**
+1. **Config Flow (`config_flow.py`)**
+
    - UI-based configuration (no YAML editing required)
    - Validates feed URLs
    - Prevents duplicate configurations
    - User-friendly setup wizard
 
-5. **Integration Setup (`__init__.py`)**
+1. **Integration Setup (`__init__.py`)**
+
    - Handles integration lifecycle
    - Sets up coordinator and platforms
    - Proper cleanup on unload
@@ -73,6 +78,7 @@ custom_components/cap_alerts/
 ### Alert Information Available
 
 Each CAP alert provides:
+
 - **identifier**: Unique alert ID
 - **sender**: Who issued the alert
 - **headline**: Brief summary
@@ -93,12 +99,14 @@ Each CAP alert provides:
 ### 1. CHMI (Czech Republic)
 
 Monitor weather alerts from the Czech Hydrometeorological Institute:
+
 - **Feed URL**: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
 - **Examples**: Storm warnings, flood alerts, extreme heat warnings
 
 ### 2. Multiple Regions
 
 Set up multiple instances to monitor different regions:
+
 - One for Prague only
 - One for Central Bohemia
 - One for all of Czech Republic
@@ -106,6 +114,7 @@ Set up multiple instances to monitor different regions:
 ### 3. Other CAP Feeds
 
 The integration works with any CAP 1.2 compliant feed:
+
 - National weather services
 - Emergency management agencies
 - Tsunami warning centers
@@ -116,6 +125,7 @@ The integration works with any CAP 1.2 compliant feed:
 ### Automations
 
 Create automations to:
+
 - Send notifications when severe alerts are issued
 - Turn on lights when alerts are active
 - Announce alerts over speakers
@@ -124,6 +134,7 @@ Create automations to:
 ### Dashboards
 
 Display alerts using:
+
 - Conditional cards (show only when alerts are active)
 - Markdown cards with formatted alert details
 - Entity cards showing alert count
@@ -132,6 +143,7 @@ Display alerts using:
 ### Scripts
 
 Use alert data in:
+
 - Notification scripts
 - TTS announcements
 - Multi-step alert response procedures
@@ -139,19 +151,23 @@ Use alert data in:
 ## Technical Highlights
 
 ### Async/Await Pattern
+
 All I/O operations use async/await for non-blocking execution, ensuring Home Assistant remains responsive.
 
 ### Proper Error Handling
+
 - Network timeouts handled gracefully
 - Invalid XML doesn't crash the integration
 - HTTP errors logged and reported
 
 ### Efficient Updates
+
 - Only fetches when needed (configurable interval)
 - Caches data between updates
 - Filters at parse time to reduce memory usage
 
 ### Standards Compliant
+
 - Follows Home Assistant integration guidelines
 - Uses standard coordinator pattern
 - Proper entity naming and unique IDs
@@ -160,6 +176,7 @@ All I/O operations use async/await for non-blocking execution, ensuring Home Ass
 ## Testing
 
 ### Parser Tests
+
 - Direct CAP XML parsing
 - Atom feed with CAP entries
 - Multiple info sections
@@ -168,6 +185,7 @@ All I/O operations use async/await for non-blocking execution, ensuring Home Ass
 - Edge cases
 
 ### Manual Testing Recommended
+
 - Test with actual CHMI feed
 - Verify updates occur at configured interval
 - Check sensor attributes populated correctly
@@ -177,6 +195,7 @@ All I/O operations use async/await for non-blocking execution, ensuring Home Ass
 ## Future Enhancements
 
 Potential improvements:
+
 - Individual sensor per alert
 - Alert history tracking
 - Severity-based binary sensors
@@ -201,15 +220,17 @@ This project is licensed under the Apache License 2.0. See LICENSE file for deta
 ## Contributing
 
 Contributions welcome! Please:
+
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+1. Create a feature branch
+1. Make your changes
+1. Add tests if applicable
+1. Submit a pull request
 
 ## Support
 
 For questions, issues, or feature requests:
+
 - GitHub Issues: https://github.com/nijel/hass-cap-alerts/issues
 - GitHub Discussions: https://github.com/nijel/hass-cap-alerts/discussions
 
