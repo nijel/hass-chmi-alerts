@@ -1,0 +1,102 @@
+# Example Lovelace cards for CAP Alerts
+
+# Card 1: Simple alert count card
+type: entity
+entity: sensor.cap_alerts_alert_count
+name: Active Weather Alerts
+icon: mdi:alert
+
+# Card 2: Conditional alert display
+type: conditional
+conditions:
+  - entity: sensor.cap_alerts_alert_count
+    state_not: "0"
+card:
+  type: markdown
+  content: >
+    ## ⚠️ Active Weather Alerts
+
+    {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+    {% if alerts %}
+      {% for alert in alerts %}
+        ### {{ alert.headline }}
+
+        **Severity:** {{ alert.severity }}  
+        **Urgency:** {{ alert.urgency }}  
+        **Areas:** {{ alert.area }}
+
+        {{ alert.description }}
+
+        {% if alert.instruction %}
+        **Instructions:** {{ alert.instruction }}
+        {% endif %}
+
+        **Effective:** {{ alert.effective }}  
+        **Expires:** {{ alert.expires }}
+
+        ---
+      {% endfor %}
+    {% endif %}
+
+# Card 3: Detailed alert card with styling
+type: markdown
+content: >
+  {% set count = states('sensor.cap_alerts_alert_count') | int %}
+  {% if count > 0 %}
+    {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+    {% for alert in alerts %}
+      {% if alert.severity == 'Extreme' %}
+        # 🚨 EXTREME ALERT
+      {% elif alert.severity == 'Severe' %}
+        # ⚠️ SEVERE ALERT
+      {% elif alert.severity == 'Moderate' %}
+        # ⚡ MODERATE ALERT
+      {% else %}
+        # ℹ️ ALERT
+      {% endif %}
+
+      **{{ alert.headline }}**
+
+      {{ alert.description }}
+
+      | Property | Value |
+      |----------|-------|
+      | Severity | {{ alert.severity }} |
+      | Urgency | {{ alert.urgency }} |
+      | Certainty | {{ alert.certainty }} |
+      | Event | {{ alert.event }} |
+      | Areas | {{ alert.area }} |
+      | Effective | {{ alert.effective }} |
+      | Expires | {{ alert.expires }} |
+
+      {% if alert.instruction %}
+      **What to do:** {{ alert.instruction }}
+      {% endif %}
+
+      ---
+    {% endfor %}
+  {% else %}
+    # ✅ No Active Alerts
+    
+    All clear - no weather alerts at this time.
+  {% endif %}
+
+# Card 4: Compact list view
+type: entities
+title: Weather Alerts
+entities:
+  - entity: sensor.cap_alerts_alert_count
+    name: Active Alerts
+  - type: conditional
+    conditions:
+      - entity: sensor.cap_alerts_alert_count
+        state_not: "0"
+    row:
+      type: markdown
+      content: >
+        {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+        {% if alerts %}
+          {% for alert in alerts %}
+            **{{ alert.headline }}** ({{ alert.severity }})
+          {% endfor %}
+        {% endif %}

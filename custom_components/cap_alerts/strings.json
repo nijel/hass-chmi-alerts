@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure CAP Alerts",
+        "description": "Set up CAP (Common Alerting Protocol) alerts integration",
+        "data": {
+          "feed_url": "CAP Feed URL",
+          "area_filter": "Area Filter (optional)",
+          "scan_interval": "Update Interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the CAP feed",
+      "invalid_url": "Invalid URL",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This CAP feed is already configured"
+    }
+  }
+}

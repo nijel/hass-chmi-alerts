@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Konfigurace CAP výstrah",
+        "description": "Nastavení integrace CAP (Common Alerting Protocol) výstrah",
+        "data": {
+          "feed_url": "URL CAP feedu",
+          "area_filter": "Filtr oblasti (volitelné)",
+          "scan_interval": "Interval aktualizace (sekundy)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nepodařilo se připojit k CAP feedu",
+      "invalid_url": "Neplatná URL",
+      "unknown": "Neočekávaná chyba"
+    },
+    "abort": {
+      "already_configured": "Tento CAP feed je již nakonfigurován"
+    }
+  }
+}

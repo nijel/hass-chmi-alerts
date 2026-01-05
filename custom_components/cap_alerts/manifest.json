@@ -1,0 +1,12 @@
+{
+  "domain": "cap_alerts",
+  "name": "CAP Alerts",
+  "codeowners": ["@nijel"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/nijel/hass-cap-alerts",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/nijel/hass-cap-alerts/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

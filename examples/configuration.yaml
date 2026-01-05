@@ -1,0 +1,58 @@
+# Example configuration for CAP Alerts integration
+
+# This integration is configured through the Home Assistant UI.
+# Below are examples for reference:
+
+# Example 1: CHMI (Czech Republic) - All alerts
+# Feed URL: https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml
+# Area Filter: (leave empty for all alerts)
+# Update Interval: 300
+
+# Example 2: CHMI - Prague only
+# Feed URL: https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml
+# Area Filter: Prague
+# Update Interval: 300
+
+# Example 3: CHMI - Central Bohemia region
+# Feed URL: https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml
+# Area Filter: Bohemia
+# Update Interval: 300
+
+# After configuration, you'll get a sensor entity:
+# sensor.cap_alerts_alert_count
+
+# Use in automations:
+automation:
+  - alias: "Severe Weather Alert Notification"
+    trigger:
+      - platform: state
+        entity_id: sensor.cap_alerts_alert_count
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.cap_alerts_alert_count
+        above: 0
+      - condition: template
+        value_template: >
+          {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+          {{ alerts and alerts[0].severity in ['Severe', 'Extreme'] }}
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Weather Alert!"
+          message: >
+            {% set alert = state_attr('sensor.cap_alerts_alert_count', 'alerts')[0] %}
+            {{ alert.headline }}
+            
+            Severity: {{ alert.severity }}
+            Areas: {{ alert.area }}
+
+  - alias: "Clear Weather Alert"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.cap_alerts_alert_count
+        below: 1
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "✅ Weather Alert Cleared"
+          message: "All weather alerts have been cleared."
