@@ -399,11 +399,13 @@ def test_language_filter_partial_match():
     alerts = parse_cap_xml(language_xml)
     alert = alerts[0]
     
-    # Partial match: 'cs' should match 'cs-CZ'
+    # Prefix match: 'cs' should match 'cs-CZ'
     assert alert.matches_language("cs") is True
     assert alert.matches_language("cs-CZ") is True
     assert alert.matches_language("CS-CZ") is True  # Case insensitive
-    assert alert.matches_language("CZ") is True  # Partial match on region code
+    
+    # Partial match on region code should NOT match (not a prefix)
+    assert alert.matches_language("CZ") is False
 
 
 def test_language_filter_no_match():
@@ -434,6 +436,42 @@ def test_language_filter_no_match():
     assert alert.matches_language("en") is False
     assert alert.matches_language("de") is False
     assert alert.matches_language("fr-FR") is False
+
+
+def test_language_filter_no_false_positives():
+    """Test that language filtering doesn't produce false positives from substring matches."""
+    # Test with 'en' language
+    en_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-EN</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>en</language>
+            <headline>Test</headline>
+            <severity>Minor</severity>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+    
+    alerts = parse_cap_xml(en_xml)
+    alert = alerts[0]
+    
+    # 'en' should NOT match languages that just contain 'en' as substring
+    # These would be false positives with naive substring matching
+    assert alert.matches_language("french") is False
+    assert alert.matches_language("denver") is False
+    assert alert.matches_language("sven") is False
+    
+    # Only valid prefix/exact matches should work
+    assert alert.matches_language("en") is True
+    assert alert.matches_language("EN") is True
 
 
 def test_language_filter_multiple_info_sections():

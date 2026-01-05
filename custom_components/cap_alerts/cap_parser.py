@@ -183,7 +183,7 @@ class CAPAlert:
         """Check if alert matches language filter.
         
         Matches against language codes in all info sections.
-        Supports partial matching (e.g., 'cs' matches 'cs-CZ').
+        Supports prefix matching (e.g., 'cs' matches 'cs-CZ' but not 'denver').
         """
         if not language_filter:
             return True
@@ -193,8 +193,10 @@ class CAPAlert:
         for info_item in self.info:
             info_language = info_item.get("language", "")
             if info_language:
-                # Case-insensitive partial matching
-                if language_filter_lower in info_language.lower():
+                info_language_lower = info_language.lower()
+                # Exact match or prefix match with hyphen separator
+                if (info_language_lower == language_filter_lower or 
+                    info_language_lower.startswith(language_filter_lower + "-")):
                     return True
         
         return False
