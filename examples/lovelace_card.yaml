@@ -21,8 +21,8 @@ card:
       {% for alert in alerts %}
         ### {{ alert.headline }}
 
-        **Severity:** {{ alert.severity }}  
-        **Urgency:** {{ alert.urgency }}  
+        **Severity:** {{ alert.severity }}
+        **Urgency:** {{ alert.urgency }}
         **Areas:** {{ alert.area }}
 
         {{ alert.description }}
@@ -31,7 +31,7 @@ card:
         **Instructions:** {{ alert.instruction }}
         {% endif %}
 
-        **Effective:** {{ alert.effective }}  
+        **Effective:** {{ alert.effective }}
         **Expires:** {{ alert.expires }}
 
         ---
@@ -77,7 +77,7 @@ content: >
     {% endfor %}
   {% else %}
     # ✅ No Active Alerts
-    
+
     All clear - no weather alerts at this time.
   {% endif %}
 

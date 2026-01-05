@@ -1,9 +1,10 @@
 """CAP (Common Alerting Protocol) XML parser."""
+
 from __future__ import annotations
 
 import logging
-from typing import Any
 import xml.etree.ElementTree as ET
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -158,17 +159,17 @@ class CAPAlert:
 
     def matches_area(self, area_filter: str | None) -> bool:
         """Check if alert matches area filter.
-        
+
         Matches against area descriptions and geocode values.
         """
         if not area_filter:
             return True
         area_filter_lower = area_filter.lower()
-        
+
         # Check area descriptions
         if any(area_filter_lower in area.lower() for area in self.areas):
             return True
-        
+
         # Check geocode values
         return any(area_filter_lower in geocode.lower() for geocode in self.geocodes)
 
@@ -215,32 +216,32 @@ def _parse_alert_element(alert_elem: ET.Element) -> dict[str, Any] | None:
     """Parse a single CAP alert element."""
     # Remove namespace for easier processing
     ns = "{urn:oasis:names:tc:emergency:cap:1.2}"
-    
+
     alert_data: dict[str, Any] = {}
-    
+
     # Parse basic alert fields
     for field in ["identifier", "sender", "sent", "status", "msgType", "scope"]:
         elem = alert_elem.find(f"{ns}{field}")
         if elem is not None and elem.text:
             alert_data[field] = elem.text.strip()
-    
+
     # Parse info sections
     info_list = []
     for info_elem in alert_elem.findall(f"{ns}info"):
         info_data = _parse_info_element(info_elem, ns)
         if info_data:
             info_list.append(info_data)
-    
+
     if info_list:
         alert_data["info"] = info_list
-    
+
     return alert_data if alert_data else None
 
 
 def _parse_info_element(info_elem: ET.Element, ns: str) -> dict[str, Any]:
     """Parse CAP info element."""
     info_data: dict[str, Any] = {}
-    
+
     # Parse simple text fields
     for field in [
         "language",
@@ -262,16 +263,16 @@ def _parse_info_element(info_elem: ET.Element, ns: str) -> dict[str, Any]:
         elem = info_elem.find(f"{ns}{field}")
         if elem is not None and elem.text:
             info_data[field] = elem.text.strip()
-    
+
     # Parse areas
     areas = []
     for area_elem in info_elem.findall(f"{ns}area"):
         area_data: dict[str, Any] = {}
-        
+
         area_desc = area_elem.find(f"{ns}areaDesc")
         if area_desc is not None and area_desc.text:
             area_data["areaDesc"] = area_desc.text.strip()
-        
+
         # Parse geocodes
         geocodes = {}
         for geocode in area_elem.findall(f"{ns}geocode"):
@@ -280,25 +281,25 @@ def _parse_info_element(info_elem: ET.Element, ns: str) -> dict[str, Any]:
             if value_name is not None and value is not None:
                 if value_name.text and value.text:
                     geocodes[value_name.text.strip()] = value.text.strip()
-        
+
         if geocodes:
             area_data["geocode"] = geocodes
-        
+
         # Parse polygons and circles if present
         polygon = area_elem.find(f"{ns}polygon")
         if polygon is not None and polygon.text:
             area_data["polygon"] = polygon.text.strip()
-        
+
         circle = area_elem.find(f"{ns}circle")
         if circle is not None and circle.text:
             area_data["circle"] = circle.text.strip()
-        
+
         if area_data:
             areas.append(area_data)
-    
+
     if areas:
         info_data["areas"] = areas
-    
+
     # Parse parameters
     parameters = {}
     for param in info_elem.findall(f"{ns}parameter"):
@@ -307,8 +308,8 @@ def _parse_info_element(info_elem: ET.Element, ns: str) -> dict[str, Any]:
         if value_name is not None and value is not None:
             if value_name.text and value.text:
                 parameters[value_name.text.strip()] = value.text.strip()
-    
+
     if parameters:
         info_data["parameters"] = parameters
-    
+
     return info_data

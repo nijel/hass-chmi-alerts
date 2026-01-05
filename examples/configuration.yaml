@@ -23,36 +23,36 @@
 
 # Use in automations:
 automation:
-  - alias: "Severe Weather Alert Notification"
-    trigger:
-      - platform: state
-        entity_id: sensor.cap_alerts_alert_count
-    condition:
-      - condition: numeric_state
-        entity_id: sensor.cap_alerts_alert_count
-        above: 0
-      - condition: template
-        value_template: >
-          {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
-          {{ alerts and alerts[0].severity in ['Severe', 'Extreme'] }}
-    action:
-      - service: notify.mobile_app
-        data:
-          title: "⚠️ Weather Alert!"
-          message: >
-            {% set alert = state_attr('sensor.cap_alerts_alert_count', 'alerts')[0] %}
-            {{ alert.headline }}
-            
-            Severity: {{ alert.severity }}
-            Areas: {{ alert.area }}
+- alias: Severe Weather Alert Notification
+  trigger:
+  - platform: state
+    entity_id: sensor.cap_alerts_alert_count
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.cap_alerts_alert_count
+    above: 0
+  - condition: template
+    value_template: >
+      {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+      {{ alerts and alerts[0].severity in ['Severe', 'Extreme'] }}
+  action:
+  - service: notify.mobile_app
+    data:
+      title: ⚠️ Weather Alert!
+      message: >
+        {% set alert = state_attr('sensor.cap_alerts_alert_count', 'alerts')[0] %}
+        {{ alert.headline }}
 
-  - alias: "Clear Weather Alert"
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.cap_alerts_alert_count
-        below: 1
-    action:
-      - service: notify.mobile_app
-        data:
-          title: "✅ Weather Alert Cleared"
-          message: "All weather alerts have been cleared."
+        Severity: {{ alert.severity }}
+        Areas: {{ alert.area }}
+
+- alias: Clear Weather Alert
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.cap_alerts_alert_count
+    below: 1
+  action:
+  - service: notify.mobile_app
+    data:
+      title: ✅ Weather Alert Cleared
+      message: All weather alerts have been cleared.

@@ -1,4 +1,5 @@
 """Tests for CAP parser."""
+
 import sys
 from pathlib import Path
 
@@ -42,10 +43,10 @@ SAMPLE_CAP_XML = """<?xml version="1.0" encoding="UTF-8"?>
 def test_parse_single_alert():
     """Test parsing a single CAP alert."""
     alerts = parse_cap_xml(SAMPLE_CAP_XML)
-    
+
     assert len(alerts) == 1
     alert = alerts[0]
-    
+
     assert isinstance(alert, CAPAlert)
     assert alert.identifier == "TEST-ALERT-001"
     assert alert.sender == "test@example.com"
@@ -58,7 +59,7 @@ def test_alert_info():
     """Test accessing alert info data."""
     alerts = parse_cap_xml(SAMPLE_CAP_XML)
     alert = alerts[0]
-    
+
     assert alert.headline == "Severe Weather Alert"
     assert alert.description == "Heavy rain and strong winds expected"
     assert alert.severity == "Severe"
@@ -73,7 +74,7 @@ def test_alert_areas():
     """Test accessing alert areas."""
     alerts = parse_cap_xml(SAMPLE_CAP_XML)
     alert = alerts[0]
-    
+
     areas = alert.areas
     assert len(areas) == 2
     assert "Prague" in areas
@@ -84,7 +85,7 @@ def test_area_filter_match():
     """Test area filtering with match."""
     alerts = parse_cap_xml(SAMPLE_CAP_XML)
     alert = alerts[0]
-    
+
     assert alert.matches_area("Prague") is True
     assert alert.matches_area("prague") is True  # Case insensitive
     assert alert.matches_area("Bohemia") is True
@@ -95,7 +96,7 @@ def test_area_filter_no_match():
     """Test area filtering with no match."""
     alerts = parse_cap_xml(SAMPLE_CAP_XML)
     alert = alerts[0]
-    
+
     assert alert.matches_area("Brno") is False
     assert alert.matches_area("Slovakia") is False
 
@@ -140,15 +141,15 @@ def test_multiple_info_sections():
         </info>
     </alert>
     """
-    
+
     alerts = parse_cap_xml(multi_info_xml)
     assert len(alerts) == 1
     alert = alerts[0]
-    
+
     # Should return first info section data
     assert alert.headline == "First Headline"
     assert alert.severity == "Severe"
-    
+
     # Areas should include both sections
     areas = alert.areas
     assert len(areas) == 2
@@ -184,11 +185,11 @@ def test_geocode_parsing():
         </info>
     </alert>
     """
-    
+
     alerts = parse_cap_xml(geocode_xml)
     assert len(alerts) == 1
     alert = alerts[0]
-    
+
     # Check geocodes property
     geocodes = alert.geocodes
     assert len(geocodes) == 2
@@ -224,25 +225,25 @@ def test_geocode_filter_match():
         </info>
     </alert>
     """
-    
+
     alerts = parse_cap_xml(geocode_xml)
     alert = alerts[0]
-    
+
     # Test matching by CISORP code
     assert alert.matches_area("2102") is True
-    
+
     # Test matching by EMMA_ID
     assert alert.matches_area("CZ02102") is True
     assert alert.matches_area("cz02102") is True  # Case insensitive
-    
+
     # Test partial matching
     assert alert.matches_area("02102") is True
     assert alert.matches_area("CZ021") is True
-    
+
     # Test still works with area description
     assert alert.matches_area("Středočeský") is True
     assert alert.matches_area("kraj") is True
-    
+
     # Test no match
     assert alert.matches_area("9999") is False
     assert alert.matches_area("CZ03") is False
@@ -283,22 +284,22 @@ def test_multiple_areas_with_geocodes():
         </info>
     </alert>
     """
-    
+
     alerts = parse_cap_xml(multi_area_xml)
     alert = alerts[0]
-    
+
     # Check all geocodes are collected
     geocodes = alert.geocodes
     assert len(geocodes) == 3
     assert "1001" in geocodes
     assert "2002" in geocodes
     assert "CZ02002" in geocodes
-    
+
     # Test matching any of the geocodes
     assert alert.matches_area("1001") is True
     assert alert.matches_area("2002") is True
     assert alert.matches_area("CZ02002") is True
-    
+
     # Test no duplicate values
     assert geocodes.count("1001") == 1
 
@@ -323,14 +324,14 @@ def test_area_without_geocode():
         </info>
     </alert>
     """
-    
+
     alerts = parse_cap_xml(no_geocode_xml)
     alert = alerts[0]
-    
+
     # Should return empty list
     geocodes = alert.geocodes
     assert len(geocodes) == 0
-    
+
     # Area description matching should still work
     assert alert.matches_area("Test Area") is True
     assert alert.matches_area("Test") is True

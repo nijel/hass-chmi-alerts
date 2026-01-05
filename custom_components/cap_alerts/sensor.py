@@ -1,4 +1,5 @@
 """Sensor platform for CAP Alerts integration."""
+
 from __future__ import annotations
 
 import logging
@@ -10,7 +11,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .cap_parser import CAPAlert
 from .const import (
     ATTR_AREA,
     ATTR_CATEGORY,
