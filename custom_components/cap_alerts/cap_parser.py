@@ -147,14 +147,14 @@ class CAPAlert:
     @property
     def geocodes(self) -> list[str]:
         """Return list of all geocode values from all info sections."""
-        geocode_values = []
+        geocode_values = set()
         for info_item in self.info:
             for area in info_item.get("areas", []):
                 geocode_dict = area.get("geocode", {})
                 for value in geocode_dict.values():
-                    if value and value not in geocode_values:
-                        geocode_values.append(value)
-        return geocode_values
+                    if value:
+                        geocode_values.add(value)
+        return list(geocode_values)
 
     def matches_area(self, area_filter: str | None) -> bool:
         """Check if alert matches area filter.
