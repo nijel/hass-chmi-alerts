@@ -64,7 +64,7 @@ AWARENESS_LEVEL_METEOALARM = {
 }
 
 # Common CAP event types to Meteoalarm event type mapping
-# Meteoalarm uses numeric event types: https://meteoalarm.org/
+# Meteoalarm uses numeric event types (1-13, ID 11 is reserved/unused): https://meteoalarm.org/
 # Format: event type ID from 1-13
 EVENT_TYPE_METEOALARM = {
     # Weather events

@@ -114,7 +114,13 @@ class CAPAlertsSummarySensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEnti
                 return value
         
         # Fallback based on keywords
-        if any(word in event_lower for word in ["wind", "storm", "gale"]):
+        # NOTE: Order matters - check more specific conditions (rain without flood) before general ones
+        if "flood" in event_lower:
+            # Check flood first since it's more specific
+            return "12; Flooding"
+        elif "rain" in event_lower:
+            return "10; Rain"
+        elif any(word in event_lower for word in ["wind", "storm", "gale"]):
             return "1; Wind"
         elif any(word in event_lower for word in ["snow", "ice", "winter"]):
             return "2; Snow/Ice"
@@ -132,10 +138,6 @@ class CAPAlertsSummarySensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEnti
             return "8; Forest Fire"
         elif any(word in event_lower for word in ["avalanche", "snow slide"]):
             return "9; Avalanches"
-        elif "rain" in event_lower and "flood" not in event_lower:
-            return "10; Rain"
-        elif "flood" in event_lower:
-            return "12; Flooding"
         else:
             # Generic fallback - use wind as most common
             return "1; Wind"
