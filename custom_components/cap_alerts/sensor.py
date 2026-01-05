@@ -29,10 +29,12 @@ from .const import (
     ATTR_URGENCY,
     AWARENESS_ICONS,
     AWARENESS_LEVEL_GREEN,
+    AWARENESS_LEVEL_METEOALARM,
     AWARENESS_LEVEL_ORANGE,
     AWARENESS_LEVEL_RED,
     AWARENESS_LEVEL_YELLOW,
     DOMAIN,
+    EVENT_TYPE_METEOALARM,
     SEVERITY_TO_AWARENESS,
 )
 from .coordinator import CAPAlertsCoordinator
@@ -92,6 +94,52 @@ class CAPAlertsSummarySensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEnti
         
         return highest_level
 
+    def _get_meteoalarm_event_type(self, event: str) -> str:
+        """Convert CAP event type to MeteoalarmCard format.
+        
+        Returns event in format "N; EventName" where N is the event type ID.
+        Falls back to generic event if no specific mapping exists.
+        """
+        if not event:
+            return "1; Wind"  # Default fallback
+        
+        # Try exact match first
+        if event in EVENT_TYPE_METEOALARM:
+            return EVENT_TYPE_METEOALARM[event]
+        
+        # Try partial match (case insensitive)
+        event_lower = event.lower()
+        for key, value in EVENT_TYPE_METEOALARM.items():
+            if key.lower() in event_lower or event_lower in key.lower():
+                return value
+        
+        # Fallback based on keywords
+        if any(word in event_lower for word in ["wind", "storm", "gale"]):
+            return "1; Wind"
+        elif any(word in event_lower for word in ["snow", "ice", "winter"]):
+            return "2; Snow/Ice"
+        elif any(word in event_lower for word in ["thunder", "lightning"]):
+            return "3; Thunderstorm"
+        elif "fog" in event_lower:
+            return "4; Fog"
+        elif any(word in event_lower for word in ["heat", "hot", "high temp"]):
+            return "5; High Temperature"
+        elif any(word in event_lower for word in ["cold", "freeze", "low temp"]):
+            return "6; Low Temperature"
+        elif any(word in event_lower for word in ["coastal", "sea", "tide"]):
+            return "7; Coastal Event"
+        elif "fire" in event_lower:
+            return "8; Forest Fire"
+        elif any(word in event_lower for word in ["avalanche", "snow slide"]):
+            return "9; Avalanches"
+        elif "rain" in event_lower and "flood" not in event_lower:
+            return "10; Rain"
+        elif "flood" in event_lower:
+            return "12; Flooding"
+        else:
+            # Generic fallback - use wind as most common
+            return "1; Wind"
+
     @property
     def native_value(self) -> str:
         """Return the highest awareness level (meteoalarm compatible)."""
@@ -108,7 +156,7 @@ class CAPAlertsSummarySensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEnti
         """Return additional state attributes."""
         if not self.coordinator.data:
             return {
-                ATTR_AWARENESS_LEVEL: AWARENESS_LEVEL_GREEN,
+                ATTR_AWARENESS_LEVEL: AWARENESS_LEVEL_METEOALARM[AWARENESS_LEVEL_GREEN],
                 ATTR_AWARENESS_TYPE: None,
                 "alert_count": 0,
             }
@@ -128,6 +176,9 @@ class CAPAlertsSummarySensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEnti
         alerts_details = []
         for alert in self.coordinator.data:
             awareness_level = SEVERITY_TO_AWARENESS.get(alert.severity, AWARENESS_LEVEL_GREEN)
+            meteoalarm_level = AWARENESS_LEVEL_METEOALARM[awareness_level]
+            meteoalarm_type = self._get_meteoalarm_event_type(alert.event)
+            
             alert_info = {
                 "identifier": alert.identifier,
                 ATTR_HEADLINE: alert.headline,
@@ -143,14 +194,21 @@ class CAPAlertsSummarySensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEnti
                 ATTR_CATEGORY: alert.category,
                 ATTR_RESPONSE_TYPE: alert.response_type,
                 ATTR_AREA: ", ".join(alert.areas),
-                ATTR_AWARENESS_LEVEL: awareness_level,
-                ATTR_AWARENESS_TYPE: alert.event,
+                ATTR_AWARENESS_LEVEL: meteoalarm_level,
+                ATTR_AWARENESS_TYPE: meteoalarm_type,
             }
             alerts_details.append(alert_info)
 
+        # Get highest awareness level in MeteoalarmCard format
+        highest_awareness_level = self._get_highest_awareness_level()
+        meteoalarm_awareness_level = AWARENESS_LEVEL_METEOALARM[highest_awareness_level]
+        meteoalarm_awareness_type = self._get_meteoalarm_event_type(
+            highest_alert.event if highest_alert else ""
+        )
+
         return {
-            ATTR_AWARENESS_LEVEL: self._get_highest_awareness_level(),
-            ATTR_AWARENESS_TYPE: highest_alert.event if highest_alert else None,
+            ATTR_AWARENESS_LEVEL: meteoalarm_awareness_level,
+            ATTR_AWARENESS_TYPE: meteoalarm_awareness_type,
             "alert_count": len(self.coordinator.data),
             "alerts": alerts_details,
         }

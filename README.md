@@ -73,7 +73,7 @@ After configuration, the integration creates a sensor entity showing alert statu
 
 ### Meteoalarm Compatibility
 
-The sensor provides meteoalarm-compatible attributes, making it easy to use with cards and automations designed for the built-in meteoalarm integration:
+The sensor provides meteoalarm-compatible attributes, making it easy to use with cards and automations designed for the built-in meteoalarm integration and custom cards like [MeteoalarmCard](https://github.com/MrBartusek/MeteoalarmCard):
 
 - **Awareness Levels**:
   - 🟢 Green: No alerts
@@ -81,7 +81,23 @@ The sensor provides meteoalarm-compatible attributes, making it easy to use with
   - 🟠 Orange: Moderate/Severe alerts
   - 🔴 Red: Extreme alerts
 
+- **Format**: Attributes use MeteoalarmCard-compatible format:
+  - `awareness_level`: "2; Yellow", "3; Orange", "4; Red"
+  - `awareness_type`: "1; Wind", "10; Rain", etc.
+
 The sensor icon automatically changes based on the current awareness level.
+
+#### Using with MeteoalarmCard
+
+To use this integration with [MeteoalarmCard](https://github.com/MrBartusek/MeteoalarmCard), configure it as follows:
+
+```yaml
+type: 'custom:meteoalarm-card'
+integration: 'meteoalarm'
+entities: 'sensor.cap_alerts_alert_count'
+```
+
+The card will automatically detect and display your CAP alerts with the appropriate colors and icons.
 
 ### Automation Example
 
