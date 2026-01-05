@@ -113,6 +113,7 @@ automation:
     condition:
       - condition: template
         value_template: >
+          {# Check for Orange (3) or Red (4) awareness levels #}
           {% set level = state_attr('binary_sensor.cap_alerts_alert', 'awareness_level') %}
           {{ level and (level.startswith('3;') or level.startswith('4;')) }}
     action:
