@@ -13,10 +13,6 @@ ignore-words-list = "hass"
 [tool.ruff]
 required-version = ">=0.8.0"
 
-[tool.ruff.lint.per-file-ignores]
-"tests/test_parser_standalone.py" = ["T201", "BLE001"]  # Allow print statements and broad exception in standalone test file
-"custom_components/cap_alerts/cap_parser.py" = ["C901", "S314"]  # Existing code complexity and XML security
-
 [tool.ruff.lint]
 ignore = [
   "D102",
@@ -176,3 +172,8 @@ select = [
   "UP032",  # Use f-string instead of `format` call
   "W"  # pycodestyle
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"custom_components/cap_alerts/binary_sensor.py" = ["C901"]  # Existing code complexity
+"custom_components/cap_alerts/cap_parser.py" = ["C901", "S314"]  # Existing code complexity and XML security
+"tests/test_parser_standalone.py" = ["T201", "BLE001"]  # Allow print statements and broad exception in standalone test file

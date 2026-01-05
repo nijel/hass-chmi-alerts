@@ -18,29 +18,48 @@
 # Area Filter: Bohemia
 # Update Interval: 300
 
-# After configuration, you'll get a sensor entity:
-# sensor.cap_alerts_alert_count
+# After configuration, you'll get a binary sensor entity:
+# binary_sensor.cap_alerts_alert
+# State: 'on' when alerts are active, 'off' when no alerts
+# Attributes: awareness_level, awareness_type, alert_count, alerts
 
 # Use in automations:
 automation:
-- alias: Severe Weather Alert Notification
+- alias: Severe Weather Alert Notification (using awareness level)
   trigger:
   - platform: state
-    entity_id: sensor.cap_alerts_alert_count
+    entity_id: binary_sensor.cap_alerts_alert
+    to: on
   condition:
-  - condition: numeric_state
-    entity_id: sensor.cap_alerts_alert_count
-    above: 0
   - condition: template
     value_template: >
-      {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+      {# Check for Orange (3) or Red (4) awareness levels #}
+      {% set level = state_attr('binary_sensor.cap_alerts_alert', 'awareness_level') %}
+      {{ level and (level.startswith('3;') or level.startswith('4;')) }}
+  action:
+  - service: notify.mobile_app
+    data:
+      title: ⚠️ Weather Alert!
+      message: >
+        {{ state_attr('binary_sensor.cap_alerts_alert', 'awareness_type') }}
+        Active alerts: {{ state_attr('binary_sensor.cap_alerts_alert', 'alert_count') }}
+
+- alias: Severe Weather Alert Notification (using alert details)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.cap_alerts_alert
+    to: on
+  condition:
+  - condition: template
+    value_template: >
+      {% set alerts = state_attr('binary_sensor.cap_alerts_alert', 'alerts') %}
       {{ alerts and alerts[0].severity in ['Severe', 'Extreme'] }}
   action:
   - service: notify.mobile_app
     data:
       title: ⚠️ Weather Alert!
       message: >
-        {% set alert = state_attr('sensor.cap_alerts_alert_count', 'alerts')[0] %}
+        {% set alert = state_attr('binary_sensor.cap_alerts_alert', 'alerts')[0] %}
         {{ alert.headline }}
 
         Severity: {{ alert.severity }}
@@ -48,9 +67,9 @@ automation:
 
 - alias: Clear Weather Alert
   trigger:
-  - platform: numeric_state
-    entity_id: sensor.cap_alerts_alert_count
-    below: 1
+  - platform: state
+    entity_id: binary_sensor.cap_alerts_alert
+    to: off
   action:
   - service: notify.mobile_app
     data:
