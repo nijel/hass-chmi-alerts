@@ -54,11 +54,11 @@ You can add multiple instances of the integration to monitor different feeds or 
 
 After configuration, the integration creates a sensor entity showing alert status with meteoalarm compatibility:
 
-- **Entity ID**: `sensor.cap_alerts_alert_count`
-- **State**: Awareness level (green, yellow, orange, red) - compatible with meteoalarm
+- **Entity ID**: `sensor.cap_alerts_alert`
+- **State**: `off` when no alerts, or awareness level (`yellow`, `orange`, `red`) when alerts are active - compatible with meteoalarm
 - **Attributes**: Detailed information including:
-  - **awareness_level**: Highest alert level (green/yellow/orange/red)
-  - **awareness_type**: Event type of the highest severity alert
+  - **awareness_level**: Highest alert level in MeteoalarmCard format ("2; Yellow", "3; Orange", "4; Red")
+  - **awareness_type**: Event type in MeteoalarmCard format ("1; Wind", "10; Rain", etc.)
   - **alert_count**: Number of active alerts
   - **alerts**: List of all active alerts with:
     - Headline
@@ -94,7 +94,7 @@ To use this integration with [MeteoalarmCard](https://github.com/MrBartusek/Mete
 ```yaml
 type: 'custom:meteoalarm-card'
 integration: 'meteoalarm'
-entities: 'sensor.cap_alerts_alert_count'
+entities: 'sensor.cap_alerts_alert'
 ```
 
 The card will automatically detect and display your CAP alerts with the appropriate colors and icons.
@@ -106,7 +106,7 @@ automation:
   - alias: "Notify on severe weather alert"
     trigger:
       - platform: state
-        entity_id: sensor.cap_alerts_alert_count
+        entity_id: sensor.cap_alerts_alert
         to:
           - orange
           - red
@@ -115,25 +115,25 @@ automation:
         data:
           title: "⚠️ Weather Alert!"
           message: >
-            {{ state_attr('sensor.cap_alerts_alert_count', 'awareness_type') }}
-            - Level: {{ states('sensor.cap_alerts_alert_count') }}
+            {{ state_attr('sensor.cap_alerts_alert', 'awareness_type') }}
+            - Level: {{ states('sensor.cap_alerts_alert') }}
             
   - alias: "Notify on any new alert"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.cap_alerts_alert_count
+        entity_id: sensor.cap_alerts_alert
         attribute: alert_count
         above: 0
     condition:
       - condition: template
         value_template: >
-          {{ state_attr('sensor.cap_alerts_alert_count', 'alerts')[0].severity in ['Severe', 'Extreme'] }}
+          {{ state_attr('sensor.cap_alerts_alert', 'alerts')[0].severity in ['Severe', 'Extreme'] }}
     action:
       - service: notify.mobile_app
         data:
           title: "Weather Alert!"
           message: >
-            {{ state_attr('sensor.cap_alerts_alert_count', 'alerts')[0].headline }}
+            {{ state_attr('sensor.cap_alerts_alert', 'alerts')[0].headline }}
 ```
 
 ### Lovelace Card Example
@@ -142,20 +142,20 @@ automation:
 # Card with awareness level display
 type: conditional
 conditions:
-  - entity: sensor.cap_alerts_alert_count
-    state_not: "green"
+  - entity: sensor.cap_alerts_alert
+    state_not: "off"
 card:
   type: markdown
   content: >
-    ## Weather Alerts - {{ states('sensor.cap_alerts_alert_count') | upper }}
+    ## Weather Alerts - {{ states('sensor.cap_alerts_alert') | upper }}
     
-    **Type:** {{ state_attr('sensor.cap_alerts_alert_count', 'awareness_type') }}
+    **Type:** {{ state_attr('sensor.cap_alerts_alert', 'awareness_type') }}
     
-    **Active Alerts:** {{ state_attr('sensor.cap_alerts_alert_count', 'alert_count') }}
+    **Active Alerts:** {{ state_attr('sensor.cap_alerts_alert', 'alert_count') }}
     
     ---
     
-    {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+    {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts') %}
     {% if alerts %}
       {% for alert in alerts %}
         **{{ alert.headline }}**
@@ -172,7 +172,7 @@ card:
 
 # Simple entity card showing current status
 type: entity
-entity: sensor.cap_alerts_alert_count
+entity: sensor.cap_alerts_alert
 name: Weather Alert Status
 ```
 

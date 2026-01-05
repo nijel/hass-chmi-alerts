@@ -19,8 +19,8 @@
 # Update Interval: 300
 
 # After configuration, you'll get a sensor entity:
-# sensor.cap_alerts_alert_count
-# State: awareness level (green/yellow/orange/red) - meteoalarm compatible
+# sensor.cap_alerts_alert
+# State: 'off' when no alerts, or awareness level (yellow/orange/red) when active
 # Attributes: awareness_level, awareness_type, alert_count, alerts
 
 # Use in automations:
@@ -28,7 +28,7 @@ automation:
   - alias: "Severe Weather Alert Notification (using awareness level)"
     trigger:
       - platform: state
-        entity_id: sensor.cap_alerts_alert_count
+        entity_id: sensor.cap_alerts_alert
         to:
           - orange
           - red
@@ -37,29 +37,29 @@ automation:
         data:
           title: "⚠️ Weather Alert!"
           message: >
-            {{ state_attr('sensor.cap_alerts_alert_count', 'awareness_type') }}
-            Level: {{ states('sensor.cap_alerts_alert_count') | upper }}
-            Active alerts: {{ state_attr('sensor.cap_alerts_alert_count', 'alert_count') }}
+            {{ state_attr('sensor.cap_alerts_alert', 'awareness_type') }}
+            Level: {{ states('sensor.cap_alerts_alert') | upper }}
+            Active alerts: {{ state_attr('sensor.cap_alerts_alert', 'alert_count') }}
 
   - alias: "Severe Weather Alert Notification (using alert count)"
     trigger:
       - platform: state
-        entity_id: sensor.cap_alerts_alert_count
+        entity_id: sensor.cap_alerts_alert
     condition:
       - condition: numeric_state
-        entity_id: sensor.cap_alerts_alert_count
+        entity_id: sensor.cap_alerts_alert
         attribute: alert_count
         above: 0
       - condition: template
         value_template: >
-          {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+          {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts') %}
           {{ alerts and alerts[0].severity in ['Severe', 'Extreme'] }}
     action:
       - service: notify.mobile_app
         data:
           title: "⚠️ Weather Alert!"
           message: >
-            {% set alert = state_attr('sensor.cap_alerts_alert_count', 'alerts')[0] %}
+            {% set alert = state_attr('sensor.cap_alerts_alert', 'alerts')[0] %}
             {{ alert.headline }}
             
             Severity: {{ alert.severity }}
@@ -68,8 +68,8 @@ automation:
   - alias: "Clear Weather Alert"
     trigger:
       - platform: state
-        entity_id: sensor.cap_alerts_alert_count
-        to: green
+        entity_id: sensor.cap_alerts_alert
+        to: "off"
     action:
       - service: notify.mobile_app
         data:

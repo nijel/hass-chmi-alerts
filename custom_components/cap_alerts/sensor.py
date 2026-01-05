@@ -74,8 +74,8 @@ class CAPAlertsSummarySensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEnti
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._attr_unique_id = f"{entry.entry_id}_alert_count"
-        self._attr_name = "Alert count"
+        self._attr_unique_id = f"{entry.entry_id}_alert"
+        self._attr_name = "Alert"
 
     def _get_highest_awareness_level(self) -> str:
         """Get the highest awareness level from active alerts."""
@@ -144,8 +144,16 @@ class CAPAlertsSummarySensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEnti
 
     @property
     def native_value(self) -> str:
-        """Return the highest awareness level (meteoalarm compatible)."""
-        return self._get_highest_awareness_level()
+        """Return the highest awareness level (meteoalarm compatible).
+        
+        Returns 'off' when there are no alerts (green level) for compatibility
+        with MeteoalarmCard, otherwise returns the awareness level.
+        """
+        awareness_level = self._get_highest_awareness_level()
+        # Return 'off' for green (no alerts) to match meteoalarm integration behavior
+        if awareness_level == AWARENESS_LEVEL_GREEN:
+            return "off"
+        return awareness_level
 
     @property
     def icon(self) -> str:

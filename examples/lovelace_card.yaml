@@ -2,26 +2,26 @@
 
 # Card 1: Simple status card with awareness level
 type: entity
-entity: sensor.cap_alerts_alert_count
+entity: sensor.cap_alerts_alert
 name: Weather Alert Status
 
-# Card 2: Conditional alert display (only shows when not green)
+# Card 2: Conditional alert display (only shows when alerts are active)
 type: conditional
 conditions:
-  - entity: sensor.cap_alerts_alert_count
-    state_not: "green"
+  - entity: sensor.cap_alerts_alert
+    state_not: "off"
 card:
   type: markdown
   content: >
-    ## ⚠️ Weather Alert - {{ states('sensor.cap_alerts_alert_count') | upper }}
+    ## ⚠️ Weather Alert - {{ states('sensor.cap_alerts_alert') | upper }}
 
-    **Type:** {{ state_attr('sensor.cap_alerts_alert_count', 'awareness_type') }}
+    **Type:** {{ state_attr('sensor.cap_alerts_alert', 'awareness_type') }}
     
-    **Active Alerts:** {{ state_attr('sensor.cap_alerts_alert_count', 'alert_count') }}
+    **Active Alerts:** {{ state_attr('sensor.cap_alerts_alert', 'alert_count') }}
     
     ---
 
-    {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+    {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts') %}
     {% if alerts %}
       {% for alert in alerts %}
         ### {{ alert.headline }}
@@ -46,10 +46,10 @@ card:
 # Card 3: Detailed alert card with styling and awareness levels
 type: markdown
 content: >
-  {% set level = states('sensor.cap_alerts_alert_count') %}
-  {% set count = state_attr('sensor.cap_alerts_alert_count', 'alert_count') | int %}
-  {% if level != 'green' and count > 0 %}
-    {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+  {% set level = states('sensor.cap_alerts_alert') %}
+  {% set count = state_attr('sensor.cap_alerts_alert', 'alert_count') | int %}
+  {% if level != 'off' and count > 0 %}
+    {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts') %}
     {% for alert in alerts %}
       {% if alert.awareness_level == 'red' %}
         # 🚨 EXTREME ALERT
@@ -92,24 +92,24 @@ content: >
 type: entities
 title: Weather Alerts
 entities:
-  - entity: sensor.cap_alerts_alert_count
+  - entity: sensor.cap_alerts_alert
     name: Alert Status
   - type: attribute
-    entity: sensor.cap_alerts_alert_count
+    entity: sensor.cap_alerts_alert
     attribute: awareness_type
     name: Alert Type
   - type: attribute
-    entity: sensor.cap_alerts_alert_count
+    entity: sensor.cap_alerts_alert
     attribute: alert_count
     name: Active Alerts
   - type: conditional
     conditions:
-      - entity: sensor.cap_alerts_alert_count
-        state_not: "green"
+      - entity: sensor.cap_alerts_alert
+        state_not: "off"
     row:
       type: markdown
       content: >
-        {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+        {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts') %}
         {% if alerts %}
           {% for alert in alerts %}
             **{{ alert.headline }}** ({{ alert.severity }})
