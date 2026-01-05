@@ -154,3 +154,184 @@ def test_multiple_info_sections():
     assert len(areas) == 2
     assert "Area 1" in areas
     assert "Area 2" in areas
+
+
+def test_geocode_parsing():
+    """Test parsing geocode values from areas."""
+    geocode_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-GEO-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2024-01-05T12:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs-CZ</language>
+            <headline>Test Alert with Geocodes</headline>
+            <severity>Moderate</severity>
+            <area>
+                <areaDesc>Středočeský kraj (Beroun, Brandýs nad Labem-Stará Boleslav, Černošice, Český Brod, Dobříš, Hořovice, Kladno, Kolín, Kralupy nad Vltavou, Lysá nad Labem, Mělník, Mladá Boleslav, Mnichovo Hradiště, Neratovice, Nymburk, Poděbrady, Rakovník, Říčany, Slaný)</areaDesc>
+                <geocode>
+                    <valueName>CISORP</valueName>
+                    <value>2102</value>
+                </geocode>
+                <geocode>
+                    <valueName>EMMA_ID</valueName>
+                    <value>CZ02102</value>
+                </geocode>
+            </area>
+        </info>
+    </alert>
+    """
+    
+    alerts = parse_cap_xml(geocode_xml)
+    assert len(alerts) == 1
+    alert = alerts[0]
+    
+    # Check geocodes property
+    geocodes = alert.geocodes
+    assert len(geocodes) == 2
+    assert "2102" in geocodes
+    assert "CZ02102" in geocodes
+
+
+def test_geocode_filter_match():
+    """Test area filtering with geocode values."""
+    geocode_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-GEO-002</identifier>
+        <sender>test@example.com</sender>
+        <sent>2024-01-05T12:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs-CZ</language>
+            <headline>Test Alert with Geocodes</headline>
+            <severity>Moderate</severity>
+            <area>
+                <areaDesc>Středočeský kraj</areaDesc>
+                <geocode>
+                    <valueName>CISORP</valueName>
+                    <value>2102</value>
+                </geocode>
+                <geocode>
+                    <valueName>EMMA_ID</valueName>
+                    <value>CZ02102</value>
+                </geocode>
+            </area>
+        </info>
+    </alert>
+    """
+    
+    alerts = parse_cap_xml(geocode_xml)
+    alert = alerts[0]
+    
+    # Test matching by CISORP code
+    assert alert.matches_area("2102") is True
+    
+    # Test matching by EMMA_ID
+    assert alert.matches_area("CZ02102") is True
+    assert alert.matches_area("cz02102") is True  # Case insensitive
+    
+    # Test partial matching
+    assert alert.matches_area("02102") is True
+    assert alert.matches_area("CZ021") is True
+    
+    # Test still works with area description
+    assert alert.matches_area("Středočeský") is True
+    assert alert.matches_area("kraj") is True
+    
+    # Test no match
+    assert alert.matches_area("9999") is False
+    assert alert.matches_area("CZ03") is False
+
+
+def test_multiple_areas_with_geocodes():
+    """Test alert with multiple areas having different geocodes."""
+    multi_area_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-MULTI-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2024-01-05T12:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs-CZ</language>
+            <headline>Multi-Area Alert</headline>
+            <severity>Severe</severity>
+            <area>
+                <areaDesc>Region 1</areaDesc>
+                <geocode>
+                    <valueName>CISORP</valueName>
+                    <value>1001</value>
+                </geocode>
+            </area>
+            <area>
+                <areaDesc>Region 2</areaDesc>
+                <geocode>
+                    <valueName>CISORP</valueName>
+                    <value>2002</value>
+                </geocode>
+                <geocode>
+                    <valueName>EMMA_ID</valueName>
+                    <value>CZ02002</value>
+                </geocode>
+            </area>
+        </info>
+    </alert>
+    """
+    
+    alerts = parse_cap_xml(multi_area_xml)
+    alert = alerts[0]
+    
+    # Check all geocodes are collected
+    geocodes = alert.geocodes
+    assert len(geocodes) == 3
+    assert "1001" in geocodes
+    assert "2002" in geocodes
+    assert "CZ02002" in geocodes
+    
+    # Test matching any of the geocodes
+    assert alert.matches_area("1001") is True
+    assert alert.matches_area("2002") is True
+    assert alert.matches_area("CZ02002") is True
+    
+    # Test no duplicate values
+    assert geocodes.count("1001") == 1
+
+
+def test_area_without_geocode():
+    """Test that areas without geocodes still work correctly."""
+    no_geocode_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-NO-GEO-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2024-01-05T12:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>en-US</language>
+            <headline>Alert without geocode</headline>
+            <severity>Minor</severity>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+    
+    alerts = parse_cap_xml(no_geocode_xml)
+    alert = alerts[0]
+    
+    # Should return empty list
+    geocodes = alert.geocodes
+    assert len(geocodes) == 0
+    
+    # Area description matching should still work
+    assert alert.matches_area("Test Area") is True
+    assert alert.matches_area("Test") is True
+    assert alert.matches_area("Missing") is False

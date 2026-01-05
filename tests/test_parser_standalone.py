@@ -95,14 +95,59 @@ def run_tests():
     assert alert.matches_area(None) is True  # No filter matches all
     print("   ✓ Area filtering works")
     
-    # Test 6: Invalid XML
-    print("\n6. Testing invalid XML...")
+    # Test 6: Geocode filtering
+    print("\n6. Testing geocode filtering...")
+    geocode_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-GEO-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2024-01-05T12:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs-CZ</language>
+            <headline>Test Alert with Geocodes</headline>
+            <severity>Moderate</severity>
+            <area>
+                <areaDesc>Středočeský kraj</areaDesc>
+                <geocode>
+                    <valueName>CISORP</valueName>
+                    <value>2102</value>
+                </geocode>
+                <geocode>
+                    <valueName>EMMA_ID</valueName>
+                    <value>CZ02102</value>
+                </geocode>
+            </area>
+        </info>
+    </alert>
+    """
+    geocode_alerts = parser.parse_cap_xml(geocode_xml)
+    assert len(geocode_alerts) == 1
+    geo_alert = geocode_alerts[0]
+    
+    # Check geocodes property
+    geocodes = geo_alert.geocodes
+    assert len(geocodes) == 2, f"Expected 2 geocodes, got {len(geocodes)}"
+    assert "2102" in geocodes
+    assert "CZ02102" in geocodes
+    
+    # Test matching by geocode values
+    assert geo_alert.matches_area("2102") is True
+    assert geo_alert.matches_area("CZ02102") is True
+    assert geo_alert.matches_area("cz02102") is True  # Case insensitive
+    assert geo_alert.matches_area("9999") is False
+    print("   ✓ Geocode filtering works")
+    
+    # Test 7: Invalid XML
+    print("\n7. Testing invalid XML...")
     invalid_alerts = parser.parse_cap_xml("<invalid>test</invalid>")
     assert len(invalid_alerts) == 0
     print("   ✓ Invalid XML handled correctly")
     
-    # Test 7: Empty XML
-    print("\n7. Testing empty XML...")
+    # Test 8: Empty XML
+    print("\n8. Testing empty XML...")
     empty_alerts = parser.parse_cap_xml("")
     assert len(empty_alerts) == 0
     print("   ✓ Empty XML handled correctly")

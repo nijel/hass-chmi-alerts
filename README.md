@@ -34,20 +34,30 @@ The integration is configured through the Home Assistant UI:
 3. Search for "CAP Alerts"
 4. Enter the configuration:
    - **CAP Feed URL**: The URL of the CAP XML feed (default: CHMI alerts)
-   - **Area Filter** (optional): Filter alerts by area name (e.g., "Prague", "Bohemia")
+   - **Area Filter** (optional): Filter alerts by area name or geocode (e.g., "Prague", "2102", "CZ02102")
    - **Update Interval**: How often to check for new alerts in seconds (default: 300)
+
+### Area Filtering
+
+The area filter supports multiple matching modes:
+- **Area names**: Filter by area description (e.g., "Prague", "Středočeský kraj")
+- **Geocode values**: Filter by CISORP codes (e.g., "2102"), EMMA_ID codes (e.g., "CZ02102"), or any other geocode value
+- **Partial matching**: Case-insensitive substring matching (e.g., "Bohemia" matches "Central Bohemia")
 
 ### Example Configurations
 
 #### CHMI (Czech Republic)
 - **Feed URL**: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
 - **Area Filter**: `Prague` (to see only alerts for Prague area)
+- **Area Filter**: `2102` (to see only alerts for region with CISORP code 2102)
+- **Area Filter**: `CZ02102` (to see only alerts for region with EMMA_ID CZ02102)
 
 #### Multiple Instances
 
 You can add multiple instances of the integration to monitor different feeds or areas:
 - One instance for all CHMI alerts
-- Another instance filtered for a specific region
+- Another instance filtered for a specific region by name
+- Another instance filtered for a specific region by geocode
 - Additional instances for other CAP feed providers
 
 ## Usage

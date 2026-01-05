@@ -11,7 +11,7 @@ Copy `custom_components/cap_alerts` to your Home Assistant `config/custom_compon
 3. Search for "CAP Alerts"
 4. Enter:
    - **Feed URL**: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml` (for CHMI)
-   - **Area Filter**: Leave empty for all alerts, or enter area name (e.g., "Prague")
+   - **Area Filter**: Leave empty for all alerts, or enter area name (e.g., "Prague") or geocode (e.g., "2102", "CZ02102")
    - **Update Interval**: `300` (5 minutes)
 
 ## 3. Use

@@ -16,14 +16,15 @@ CAP (Common Alerting Protocol) is an international standard (OASIS) for public w
    - Parses CAP 1.2 XML format
    - Supports both direct CAP XML and Atom feeds containing CAP alerts
    - Extracts all standard CAP fields (severity, urgency, certainty, etc.)
+   - Parses geocode values (CISORP, EMMA_ID, etc.) from area sections
    - Handles multiple info sections and areas per alert
-   - Case-insensitive area filtering
+   - Case-insensitive area and geocode filtering
 
 2. **Data Coordinator (`coordinator.py`)**
    - Fetches CAP feeds asynchronously using aiohttp
    - Configurable update intervals (default: 5 minutes)
    - Proper error handling and timeout management
-   - Filters alerts based on user-defined area
+   - Filters alerts based on user-defined area or geocode filter
 
 3. **Sensor Platform (`sensor.py`)**
    - Creates a sensor showing the count of active alerts
@@ -44,7 +45,7 @@ CAP (Common Alerting Protocol) is an international standard (OASIS) for public w
 ### Features
 
 ✅ **Generic CAP Support**: Works with any CAP 1.2 compliant feed
-✅ **Area Filtering**: Filter alerts by geographic area
+✅ **Area Filtering**: Filter alerts by geographic area description or geocode values (CISORP, EMMA_ID, etc.)
 ✅ **Configurable Updates**: Set your own update interval
 ✅ **Rich Alert Data**: Access all CAP fields through sensor attributes
 ✅ **Multilingual**: English and Czech translations included

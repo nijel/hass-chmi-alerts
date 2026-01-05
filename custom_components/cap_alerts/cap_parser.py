@@ -144,12 +144,33 @@ class CAPAlert:
                     area_names.append(area_name)
         return area_names
 
+    @property
+    def geocodes(self) -> list[str]:
+        """Return list of all geocode values from all info sections."""
+        geocode_values = set()
+        for info_item in self.info:
+            for area in info_item.get("areas", []):
+                geocode_dict = area.get("geocode", {})
+                for value in geocode_dict.values():
+                    if value:
+                        geocode_values.add(value)
+        return list(geocode_values)
+
     def matches_area(self, area_filter: str | None) -> bool:
-        """Check if alert matches area filter."""
+        """Check if alert matches area filter.
+        
+        Matches against area descriptions and geocode values.
+        """
         if not area_filter:
             return True
         area_filter_lower = area_filter.lower()
-        return any(area_filter_lower in area.lower() for area in self.areas)
+        
+        # Check area descriptions
+        if any(area_filter_lower in area.lower() for area in self.areas):
+            return True
+        
+        # Check geocode values
+        return any(area_filter_lower in geocode.lower() for geocode in self.geocodes)
 
 
 def parse_cap_xml(xml_content: str) -> list[CAPAlert]:
