@@ -49,10 +49,6 @@ class CAPAlertsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data=user_input,
             )
 
-        # Language filter defaults to empty (no filtering)
-        # but we provide HA language as a hint in the description
-        ha_language = self.hass.config.language or "en"
-        
         data_schema = vol.Schema(
             {
                 vol.Required(CONF_FEED_URL, default=DEFAULT_CHMI_URL): cv.string,
