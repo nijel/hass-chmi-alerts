@@ -1008,3 +1008,219 @@ def test_language_filter_no_matching_language():
     assert alert.event == "Czech Alert"
     assert alert.severity == "Minor"
     assert alert.language == "cs"
+
+
+def test_get_actionable_info_blocks():
+    """Test filtering of actionable info blocks (excluding 'no warning' alerts)."""
+    mixed_alerts_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-ACTIONABLE-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Žádná výstraha před teplotou</event>
+            <severity>Minor</severity>
+            <certainty>Unlikely</certainty>
+            <urgency>Immediate</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>cs</language>
+            <event>Silný mráz</event>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <urgency>Future</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>cs</language>
+            <event>Žádný výhled nebezpečných jevů</event>
+            <severity>Minor</severity>
+            <certainty>Unlikely</certainty>
+            <urgency>Immediate</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>en</language>
+            <event>Minor Temperature Warning</event>
+            <severity>Minor</severity>
+            <certainty>Unlikely</certainty>
+            <urgency>Past</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(mixed_alerts_xml)
+    assert len(alerts) == 1
+    alert = alerts[0]
+
+    # Get actionable info blocks for Czech language
+    actionable = alert.get_actionable_info_blocks("cs")
+
+    # Should only return the "Silný mráz" alert, filtering out:
+    # - "Žádná výstraha" (no warning)
+    # - "Žádný výhled" (no outlook)
+    # - Past urgency alerts
+    # - English alerts (when filtering for Czech)
+    assert len(actionable) == 1
+    assert actionable[0].get("event") == "Silný mráz"
+    assert actionable[0].get("severity") == "Moderate"
+
+
+def test_get_actionable_info_blocks_with_parameters():
+    """Test that actionable info blocks include parameters."""
+    alerts_with_params_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-PARAMS-001</identifier>
+        <sender>chmi@chmi.cz</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Silný mráz</event>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <urgency>Future</urgency>
+            <parameter>
+                <valueName>awareness_type</valueName>
+                <value>6; low-temperature</value>
+            </parameter>
+            <parameter>
+                <valueName>awareness_level</valueName>
+                <value>2; yellow; Moderate</value>
+            </parameter>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(alerts_with_params_xml)
+    alert = alerts[0]
+
+    actionable = alert.get_actionable_info_blocks("cs")
+    assert len(actionable) == 1
+
+    # Check that parameters are included
+    params = actionable[0].get("parameters", {})
+    assert "awareness_type" in params
+    assert params["awareness_type"] == "6; low-temperature"
+    assert "awareness_level" in params
+    assert params["awareness_level"] == "2; yellow; Moderate"
+
+
+def test_get_actionable_info_blocks_filters_past_urgency():
+    """Test that past urgency alerts are filtered out."""
+    past_alert_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-PAST-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Some Alert</event>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <urgency>Past</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>cs</language>
+            <event>Current Alert</event>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <urgency>Immediate</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(past_alert_xml)
+    alert = alerts[0]
+
+    actionable = alert.get_actionable_info_blocks("cs")
+
+    # Should only get the current alert, not the past one
+    assert len(actionable) == 1
+    assert actionable[0].get("event") == "Current Alert"
+    assert actionable[0].get("urgency") == "Immediate"
+
+
+def test_get_actionable_info_blocks_no_language_filter():
+    """Test actionable info blocks without language filter."""
+    multi_lang_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-NOLANG-FILTER-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Silný mráz</event>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <urgency>Future</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>en</language>
+            <event>Heavy Frost</event>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <urgency>Future</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>cs</language>
+            <event>Žádná výstraha</event>
+            <severity>Minor</severity>
+            <certainty>Unlikely</certainty>
+            <urgency>Immediate</urgency>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(multi_lang_xml)
+    alert = alerts[0]
+
+    # Without language filter, should get both Czech and English actionable alerts
+    actionable = alert.get_actionable_info_blocks(None)
+
+    # Should get Czech and English alerts, but not the "no warning"
+    assert len(actionable) == 2
+    events = [info.get("event") for info in actionable]
+    assert "Silný mráz" in events
+    assert "Heavy Frost" in events
+    assert "Žádná výstraha" not in events

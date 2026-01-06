@@ -355,6 +355,63 @@ class CAPAlert:
 
         return False
 
+    def get_actionable_info_blocks(
+        self, language_filter: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Get all actionable info blocks (excluding 'no warning' alerts).
+
+        Returns info blocks that:
+        - Match the language filter (if specified)
+        - Are not "no warning" type alerts
+        - Have actual warning content (not certainty: Unlikely with severity: Minor)
+
+        Args:
+            language_filter: Language code to filter by (e.g., 'cs', 'en')
+
+        Returns:
+            List of info dictionaries representing actionable alerts
+
+        """
+        actionable_infos = []
+
+        for info_item in self.info:
+            # Check language filter
+            if language_filter:
+                info_language = info_item.get("language", "")
+                if not self._info_matches_language(info_language, language_filter):
+                    continue
+
+            # Get event text
+            event = info_item.get("event", "")
+
+            # Skip "no warning" type alerts
+            # Czech: "Žádná výstraha", "Žádný výhled"
+            # English: "No ... Warning", "Minor ... Warning" with Unlikely certainty
+            if event.startswith("Žádná výstraha") or event.startswith("Žádný výhled"):
+                continue
+
+            # Also filter out English "Minor ... Warning" with Unlikely certainty
+            # These are placeholder alerts indicating no actual warning
+            severity = info_item.get("severity", "")
+            certainty = info_item.get("certainty", "")
+            urgency = info_item.get("urgency", "")
+
+            if (
+                certainty == "Unlikely"
+                and severity == "Minor"
+                and (event.startswith("Minor ") or event.startswith("No "))
+            ):
+                continue
+
+            # Skip past alerts
+            if urgency == "Past":
+                continue
+
+            # This is an actionable alert
+            actionable_infos.append(info_item)
+
+        return actionable_infos
+
 
 def parse_cap_xml(xml_content: str) -> list[CAPAlert]:
     """Parse CAP XML content and return list of alerts."""
