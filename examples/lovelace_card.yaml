@@ -1,21 +1,21 @@
-# Example Lovelace cards for CAP Alerts with weatheralerts compatibility
+# Example Lovelace cards for CHMI Alerts with MeteoalarmCard compatibility
 
-# Card 1: Simple status card showing alert count
+# Card 1: Simple status card showing alert status
 type: entity
-entity: sensor.cap_alerts_alert
-name: Weather Alert Count
+entity: binary_sensor.chmi_alerts_alert
+name: Weather Alert Status
 
 # Card 2: Conditional alert display (only shows when alerts are active)
 type: conditional
 conditions:
-  - entity: sensor.cap_alerts_alert
-    state_not: "0"
+  - entity: binary_sensor.chmi_alerts_alert
+    state: 'on'
 card:
   type: markdown
   content: >
-    ## ⚠️ Weather Alerts - {{ states('sensor.cap_alerts_alert') }} Active
+    ## ⚠️ Weather Alerts Active
 
-    {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts_detailed') %}
+    {% set alerts = state_attr('binary_sensor.chmi_alerts_alert', 'alerts') %}
     {% if alerts %}
       {% for alert in alerts %}
         ### {{ alert.headline }}
@@ -40,9 +40,9 @@ card:
 # Card 3: Detailed alert card with styling based on severity
 type: markdown
 content: >
-  {% set count = states('sensor.cap_alerts_alert') | int %}
-  {% if count > 0 %}
-    {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts_detailed') %}
+  {% set sensor_state = states('binary_sensor.chmi_alerts_alert') %}
+  {% if sensor_state == 'on' %}
+    {% set alerts = state_attr('binary_sensor.chmi_alerts_alert', 'alerts') %}
     {% for alert in alerts %}
       {% if alert.severity == 'Extreme' %}
         # 🚨 EXTREME ALERT
@@ -84,16 +84,16 @@ content: >
 type: entities
 title: Weather Alerts
 entities:
-  - entity: sensor.cap_alerts_alert
-    name: Active Alerts
+  - entity: binary_sensor.chmi_alerts_alert
+    name: Alert Status
   - type: conditional
     conditions:
-      - entity: sensor.cap_alerts_alert
-        state_not: "0"
+      - entity: binary_sensor.chmi_alerts_alert
+        state: 'on'
     row:
       type: markdown
       content: >
-        {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts_detailed') %}
+        {% set alerts = state_attr('binary_sensor.chmi_alerts_alert', 'alerts') %}
         {% if alerts %}
           {% for alert in alerts %}
             **{{ alert.headline }}** ({{ alert.severity }})
@@ -102,5 +102,5 @@ entities:
 
 # Card 5: Using with MeteoalarmCard
 type: custom:meteoalarm-card
-integration: weatheralerts
-entities: sensor.cap_alerts_alert
+integration: meteoalarm
+entities: binary_sensor.chmi_alerts_alert

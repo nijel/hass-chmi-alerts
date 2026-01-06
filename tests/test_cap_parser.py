@@ -6,7 +6,7 @@ from pathlib import Path
 # Add custom_components to path to allow importing without Home Assistant
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from custom_components.cap_alerts.cap_parser import CAPAlert, parse_cap_xml
+from custom_components.chmi_alerts.cap_parser import CAPAlert, parse_cap_xml
 
 # Sample CAP XML for testing
 SAMPLE_CAP_XML = """<?xml version="1.0" encoding="UTF-8"?>
