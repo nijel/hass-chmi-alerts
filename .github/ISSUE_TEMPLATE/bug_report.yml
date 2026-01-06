@@ -1,132 +1,132 @@
 name: Bug Report
 description: Report a problem with the CAP Alerts integration
-title: "[Bug]: "
-labels: ["bug"]
+title: '[Bug]: '
+labels: [bug]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to report a bug! Please fill out the information below to help us understand and reproduce the issue.
+- type: markdown
+  attributes:
+    value: |
+      Thanks for taking the time to report a bug! Please fill out the information below to help us understand and reproduce the issue.
 
-  - type: input
-    id: ha-version
-    attributes:
-      label: Home Assistant Version
-      description: What version of Home Assistant are you running?
-      placeholder: e.g., 2024.1.0
-    validations:
+- type: input
+  id: ha-version
+  attributes:
+    label: Home Assistant Version
+    description: What version of Home Assistant are you running?
+    placeholder: e.g., 2024.1.0
+  validations:
+    required: true
+
+- type: input
+  id: integration-version
+  attributes:
+    label: CAP Alerts Integration Version
+    description: What version of the CAP Alerts integration are you using?
+    placeholder: e.g., 0.1.0
+  validations:
+    required: true
+
+- type: dropdown
+  id: installation-method
+  attributes:
+    label: Installation Method
+    description: How did you install the integration?
+    options:
+    - HACS
+    - Manual
+  validations:
+    required: true
+
+- type: textarea
+  id: configuration
+  attributes:
+    label: Configuration
+    description: |
+      Please provide your configuration details for the CAP Alerts integration.
+      You can find these in Settings → Devices & Services → CAP Alerts → Configure.
+    placeholder: |
+      CAP Feed URL: https://example.com/cap.xml
+      Area Filter: Prague
+      Update Interval: 300 seconds
+  validations:
+    required: true
+
+- type: textarea
+  id: cap-xml
+  attributes:
+    label: CAP XML Sample
+    description: |
+      If possible, provide the CAP XML content that triggered the issue.
+      This is crucial for reproducing the problem. You can usually access the XML by visiting the feed URL directly.
+      If the XML is very large, please include at least one complete `<alert>` element that causes the issue.
+    placeholder: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <!-- XML content here -->
+      </alert>
+    render: xml
+  validations:
+    required: false
+
+- type: textarea
+  id: expected-behavior
+  attributes:
+    label: Expected Behavior
+    description: What did you expect to happen?
+    placeholder: The integration should...
+  validations:
+    required: true
+
+- type: textarea
+  id: actual-behavior
+  attributes:
+    label: Actual Behavior
+    description: What actually happened?
+    placeholder: Instead, the integration...
+  validations:
+    required: true
+
+- type: textarea
+  id: logs
+  attributes:
+    label: Relevant Log Output
+    description: |
+      Please provide any relevant log output from Home Assistant.
+      You can find logs in Settings → System → Logs.
+      Enable debug logging for this integration by adding to your configuration.yaml:
+      ```yaml
+      logger:
+        default: info
+        logs:
+          custom_components.cap_alerts: debug
+      ```
+    render: text
+  validations:
+    required: false
+
+- type: textarea
+  id: additional-context
+  attributes:
+    label: Additional Context
+    description: |
+      Add any other context about the problem here.
+      - Screenshots
+      - Related issues
+      - Steps to reproduce
+      - Frequency of the issue
+    placeholder: Any additional information that might help...
+  validations:
+    required: false
+
+- type: checkboxes
+  id: terms
+  attributes:
+    label: Checklist
+    description: Please confirm the following
+    options:
+    - label: I have searched existing issues to ensure this is not a duplicate
       required: true
-
-  - type: input
-    id: integration-version
-    attributes:
-      label: CAP Alerts Integration Version
-      description: What version of the CAP Alerts integration are you using?
-      placeholder: e.g., 0.1.0
-    validations:
+    - label: I have provided all the requested information above
       required: true
-
-  - type: dropdown
-    id: installation-method
-    attributes:
-      label: Installation Method
-      description: How did you install the integration?
-      options:
-        - HACS
-        - Manual
-    validations:
-      required: true
-
-  - type: textarea
-    id: configuration
-    attributes:
-      label: Configuration
-      description: |
-        Please provide your configuration details for the CAP Alerts integration.
-        You can find these in Settings → Devices & Services → CAP Alerts → Configure.
-      placeholder: |
-        CAP Feed URL: https://example.com/cap.xml
-        Area Filter: Prague
-        Update Interval: 300 seconds
-    validations:
-      required: true
-
-  - type: textarea
-    id: cap-xml
-    attributes:
-      label: CAP XML Sample
-      description: |
-        If possible, provide the CAP XML content that triggered the issue.
-        This is crucial for reproducing the problem. You can usually access the XML by visiting the feed URL directly.
-        If the XML is very large, please include at least one complete `<alert>` element that causes the issue.
-      placeholder: |
-        <?xml version="1.0" encoding="UTF-8"?>
-        <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
-          <!-- XML content here -->
-        </alert>
-      render: xml
-    validations:
+    - label: I am running the latest version of the integration
       required: false
-
-  - type: textarea
-    id: expected-behavior
-    attributes:
-      label: Expected Behavior
-      description: What did you expect to happen?
-      placeholder: The integration should...
-    validations:
-      required: true
-
-  - type: textarea
-    id: actual-behavior
-    attributes:
-      label: Actual Behavior
-      description: What actually happened?
-      placeholder: Instead, the integration...
-    validations:
-      required: true
-
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant Log Output
-      description: |
-        Please provide any relevant log output from Home Assistant.
-        You can find logs in Settings → System → Logs.
-        Enable debug logging for this integration by adding to your configuration.yaml:
-        ```yaml
-        logger:
-          default: info
-          logs:
-            custom_components.cap_alerts: debug
-        ```
-      render: text
-    validations:
-      required: false
-
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: Additional Context
-      description: |
-        Add any other context about the problem here.
-        - Screenshots
-        - Related issues
-        - Steps to reproduce
-        - Frequency of the issue
-      placeholder: Any additional information that might help...
-    validations:
-      required: false
-
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Checklist
-      description: Please confirm the following
-      options:
-        - label: I have searched existing issues to ensure this is not a duplicate
-          required: true
-        - label: I have provided all the requested information above
-          required: true
-        - label: I am running the latest version of the integration
-          required: false
