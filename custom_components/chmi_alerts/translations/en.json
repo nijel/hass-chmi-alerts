@@ -6,13 +6,11 @@
         "description": "Set up CHMI (Czech Hydrometeorological Institute) weather alerts",
         "data": {
           "area_filter": "Area Filter (optional)",
-          "language_filter": "Language Filter (optional, e.g., 'en', 'cs', or 'cs-CZ')",
-          "scan_interval": "Update Interval (seconds)"
+          "language_filter": "Language Filter (optional, e.g., 'en', 'cs', or 'cs-CZ')"
         },
         "data_description": {
           "area_filter": "Filter alerts by area name or geocode (e.g., CISORP code). Matches against areaDesc and geocode tags. Leave empty to receive all alerts. See https://apl2.czso.cz/iSMS/cisdet.jsp?kodcis=65 for CISORP codes.",
-          "language_filter": "Filter alerts by language code (e.g., 'en', 'cs', 'cs-CZ'). Leave empty to receive alerts in all languages.",
-          "scan_interval": "How often to check for new alerts, in seconds"
+          "language_filter": "Filter alerts by language code (e.g., 'en', 'cs', 'cs-CZ'). Leave empty to receive alerts in all languages."
         }
       }
     },

@@ -6,13 +6,11 @@
         "description": "Nastavení výstrah ČHMÚ (Český hydrometeorologický ústav)",
         "data": {
           "area_filter": "Filtr oblasti (volitelné)",
-          "language_filter": "Filtr jazyka (volitelné, např. 'en', 'cs' nebo 'cs-CZ')",
-          "scan_interval": "Interval aktualizace (sekundy)"
+          "language_filter": "Filtr jazyka (volitelné, např. 'en', 'cs' nebo 'cs-CZ')"
         },
         "data_description": {
           "area_filter": "Filtrování výstrah podle názvu oblasti nebo geokódu (např. kód CISORP). Filtruje proti tagům areaDesc a geocode. Ponechte prázdné pro příjem všech výstrah. Kódy CISORP viz https://apl2.czso.cz/iSMS/cisdet.jsp?kodcis=65.",
-          "language_filter": "Filtrování výstrah podle kódu jazyka (např. 'en', 'cs', 'cs-CZ'). Ponechte prázdné pro příjem výstrah ve všech jazycích.",
-          "scan_interval": "Jak často kontrolovat nové výstrahy, v sekundách"
+          "language_filter": "Filtrování výstrah podle kódu jazyka (např. 'en', 'cs', 'cs-CZ'). Ponechte prázdné pro příjem výstrah ve všech jazycích."
         }
       }
     },

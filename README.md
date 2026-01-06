@@ -8,7 +8,7 @@ A Home Assistant custom integration for fetching and displaying weather alerts f
 
 - Fetches weather alerts from CHMI (Český hydrometeorologický ústav)
 - Filter alerts by geographic area
-- Configurable update interval
+- Updates automatically every hour
 - Displays alert count and detailed information as sensor attributes
 - MeteoalarmCard compatible
 - Supports multiple instances for different regions
@@ -36,7 +36,6 @@ The integration is configured through the Home Assistant UI:
 1. Search for "CHMI Alerts"
 1. Enter the configuration:
    - **Area Filter** (optional): Filter alerts by area name or geocode (e.g., "Prague", "2102", "CZ02102")
-   - **Update Interval**: How often to check for new alerts in seconds (default: 300)
 
 ### Area Filtering
 

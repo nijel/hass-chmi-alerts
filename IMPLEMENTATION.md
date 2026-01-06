@@ -25,7 +25,7 @@ CHMI (Český hydrometeorologický ústav / Czech Hydrometeorological Institute)
 
    - Fetches CHMI CAP feed asynchronously using aiohttp
    - Hardcoded feed URL: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
-   - Configurable update intervals (default: 5 minutes)
+   - Updates automatically every hour
    - Proper error handling and timeout management
    - Filters alerts based on user-defined area or geocode filter
 
@@ -55,7 +55,7 @@ CHMI (Český hydrometeorologický ústav / Czech Hydrometeorological Institute)
 ✅ **CHMI-Specific**: Dedicated integration for Czech weather alerts
 ✅ **No URL Configuration**: Hardcoded to CHMI feed for simplicity
 ✅ **Area Filtering**: Filter alerts by geographic area description or geocode values (CISORP, EMMA_ID, etc.)
-✅ **Configurable Updates**: Set your own update interval
+✅ **Automatic Updates**: Updates every hour
 ✅ **Rich Alert Data**: Access all CAP fields through sensor attributes
 ✅ **Multilingual**: English and Czech translations included
 ✅ **MeteoalarmCard Compatible**: Works with popular weather alert cards
@@ -161,7 +161,7 @@ All I/O operations use async/await for non-blocking execution, ensuring Home Ass
 
 ### Efficient Updates
 
-- Only fetches when needed (configurable interval)
+- Fetches data every hour
 - Caches data between updates
 - Filters at parse time to reduce memory usage
 
@@ -186,7 +186,7 @@ All I/O operations use async/await for non-blocking execution, ensuring Home Ass
 ### Manual Testing Recommended
 
 - Test with actual CHMI feed
-- Verify updates occur at configured interval
+- Verify updates occur every hour
 - Check sensor attributes populated correctly
 - Test area filtering with real data
 - Verify automations trigger properly

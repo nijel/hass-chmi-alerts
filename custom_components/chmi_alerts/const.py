@@ -5,10 +5,9 @@ DOMAIN = "chmi_alerts"
 # Configuration
 CONF_AREA_FILTER = "area_filter"
 CONF_LANGUAGE_FILTER = "language_filter"
-CONF_SCAN_INTERVAL = "scan_interval"
 
 # Defaults
-DEFAULT_SCAN_INTERVAL = 300  # 5 minutes
+DEFAULT_SCAN_INTERVAL = 3600  # 1 hour
 CHMI_FEED_URL = "https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml"
 
 # Attributes

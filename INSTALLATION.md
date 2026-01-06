@@ -53,17 +53,13 @@ Once this integration is added to HACS:
 
 1. **Configure the integration**
 
-   - **Area Filter** (optional): Enter an area name to filter alerts
+   - **Area Filter** (optional): Enter an area name or geocode to filter alerts
 
-     - Examples: "Prague", "Bohemia", "Moravia"
+     - Examples: "Prague", "Bohemia", "Moravia", "2102", "CZ02102"
      - Leave empty to receive all alerts
      - Filter is case-insensitive and matches partial names
 
-   - **Update Interval**: How often to check for new alerts (in seconds)
-
-     - Default: 300 (5 minutes)
-     - Recommended: 300-600 (5-10 minutes)
-     - Minimum: 60 (1 minute)
+   - The integration automatically updates every hour
 
 1. **Complete setup**
 
@@ -130,12 +126,6 @@ See `examples/lovelace_card.yaml` for dashboard card examples.
 - Check the exact area names in the feed
 - The filter matches partial names (case-insensitive)
 - Try a broader filter first, then narrow it down
-
-### Too many requests / Rate limiting
-
-- Increase the update interval
-- CHMI feed is typically updated every few minutes
-- 5-10 minutes interval is usually sufficient
 
 ## Uninstallation
 

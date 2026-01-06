@@ -11,7 +11,6 @@ Copy `custom_components/chmi_alerts` to your Home Assistant `config/custom_compo
 1. Search for "CHMI Alerts"
 1. Enter:
    - **Area Filter**: Leave empty for all alerts, or enter area name (e.g., "Prague") or geocode (e.g., "2102", "CZ02102")
-   - **Update Interval**: `300` (5 minutes)
 
 ## 3. Use
 

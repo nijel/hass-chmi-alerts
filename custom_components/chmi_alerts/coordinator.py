@@ -25,7 +25,6 @@ class CAPAlertsCoordinator(DataUpdateCoordinator[list[CAPAlert]]):
         feed_url: str,
         area_filter: str | None = None,
         language_filter: str | None = None,
-        scan_interval: int = DEFAULT_SCAN_INTERVAL,
     ) -> None:
         """Initialize the coordinator."""
         self.feed_url = feed_url
@@ -36,7 +35,7 @@ class CAPAlertsCoordinator(DataUpdateCoordinator[list[CAPAlert]]):
             hass,
             _LOGGER,
             name="CHMI Alerts",
-            update_interval=timedelta(seconds=scan_interval),
+            update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
         )
 
     async def _async_update_data(self) -> list[CAPAlert]:

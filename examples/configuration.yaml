@@ -5,15 +5,14 @@
 
 # Example 1: CHMI - All alerts
 # Area Filter: (leave empty for all alerts)
-# Update Interval: 300
 
 # Example 2: CHMI - Prague only
 # Area Filter: Prague
-# Update Interval: 300
 
 # Example 3: CHMI - Central Bohemia region
 # Area Filter: Bohemia
-# Update Interval: 300
+
+# The integration automatically updates every hour.
 
 # After configuration, you'll get a binary sensor entity:
 # binary_sensor.chmi_alerts_alert

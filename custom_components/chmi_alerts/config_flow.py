@@ -13,8 +13,6 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import (
     CONF_AREA_FILTER,
     CONF_LANGUAGE_FILTER,
-    CONF_SCAN_INTERVAL,
-    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
 )
 
@@ -49,9 +47,6 @@ class CHMIAlertsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             {
                 vol.Optional(CONF_AREA_FILTER): cv.string,
                 vol.Optional(CONF_LANGUAGE_FILTER): cv.string,
-                vol.Optional(
-                    CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
-                ): cv.positive_int,
             }
         )
 
