@@ -1,13 +1,19 @@
 """Sensor platform for CAP Alerts integration.
 
-NOTE: This platform is not enabled by default. The integration uses binary_sensor
-with MeteoalarmCard's 'meteoalarm' integration format instead, which is a better fit
-for CAP alerts as it uses native awareness_level and awareness_type parameters.
+NOTE: This platform is NOT ENABLED by default and NOT RECOMMENDED for new installations.
 
-This sensor platform provides compatibility with MeteoalarmCard's 'weatheralerts'
-integration format, but is kept for reference and alternative use cases.
+The integration uses binary_sensor with MeteoalarmCard's 'meteoalarm' integration format,
+which is a better fit for CAP alerts as it uses native awareness_level and awareness_type
+parameters from the CAP XML.
 
-To enable this platform, modify __init__.py to include Platform.SENSOR in PLATFORMS.
+This sensor platform provides compatibility with MeteoalarmCard's 'weatheralerts' integration
+format. However, this requires appending English severity keywords (Advisory/Watch/Warning)
+to event names, which is a workaround for non-English alerts.
+
+To enable this platform (not recommended), modify __init__.py to include Platform.SENSOR
+in PLATFORMS.
+
+For new installations, use binary_sensor with meteoalarm integration instead.
 """
 
 from __future__ import annotations
