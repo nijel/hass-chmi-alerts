@@ -224,6 +224,7 @@ class CAPAlertsBinarySensor(
                 ATTR_AWARENESS_LEVEL: AWARENESS_LEVEL_METEOALARM[AWARENESS_LEVEL_GREEN],
                 ATTR_AWARENESS_TYPE: None,
                 "alert_count": 0,
+                "attribution": "Information provided by MeteoAlarm",
             }
 
         # Find the info block with highest severity
