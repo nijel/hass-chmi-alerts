@@ -837,3 +837,174 @@ def test_all_new_fields_together():
         alert.description
         == "Během noci se místy očekává pokles teploty vzduchu pod -12 °C."
     )
+
+
+def test_language_filter_selects_preferred_info():
+    """Test that language filter selects the info section with matching language and highest severity.
+
+    This is a regression test for the issue where alerts with multiple info sections
+    in different languages would always return properties from the first info section,
+    even when a language filter was applied.
+    """
+    multi_lang_severity_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-MULTILANG-SEVERITY-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Žádná výstraha před teplotou</event>
+            <severity>Minor</severity>
+            <certainty>Unlikely</certainty>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>en-GB</language>
+            <event>Minor Temperature Warning</event>
+            <severity>Minor</severity>
+            <certainty>Unlikely</certainty>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>cs</language>
+            <event>Silný mráz</event>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>en-GB</language>
+            <event>Heavy Frost</event>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(multi_lang_severity_xml)
+    assert len(alerts) == 1
+    alert = alerts[0]
+
+    # Without language filter, should return first info section
+    assert alert.event == "Žádná výstraha před teplotou"
+    assert alert.severity == "Minor"
+    assert alert.certainty == "Unlikely"
+    assert alert.language == "cs"
+
+    # With language filter set to 'cs', should return Czech info with highest severity
+    alert.set_language_filter("cs")
+    assert alert.event == "Silný mráz"
+    assert alert.severity == "Moderate"
+    assert alert.certainty == "Likely"
+    assert alert.language == "cs"
+
+    # With language filter set to 'en-GB', should return English info with highest severity
+    alert.set_language_filter("en-GB")
+    assert alert.event == "Heavy Frost"
+    assert alert.severity == "Moderate"
+    assert alert.certainty == "Likely"
+    assert alert.language == "en-GB"
+
+    # With language filter set to 'en' (prefix), should match 'en-GB'
+    alert.set_language_filter("en")
+    assert alert.event == "Heavy Frost"
+    assert alert.severity == "Moderate"
+    assert alert.language == "en-GB"
+
+
+def test_language_filter_with_only_matching_severity():
+    """Test language filter when only one severity level matches the language."""
+    single_severity_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-SINGLE-SEVERITY-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Silný vítr</event>
+            <severity>Severe</severity>
+            <certainty>Likely</certainty>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>en</language>
+            <event>Strong Wind</event>
+            <severity>Severe</severity>
+            <certainty>Likely</certainty>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(single_severity_xml)
+    alert = alerts[0]
+
+    # With Czech filter, should get Czech info
+    alert.set_language_filter("cs")
+    assert alert.event == "Silný vítr"
+    assert alert.severity == "Severe"
+    assert alert.language == "cs"
+
+    # With English filter, should get English info
+    alert.set_language_filter("en")
+    assert alert.event == "Strong Wind"
+    assert alert.severity == "Severe"
+    assert alert.language == "en"
+
+
+def test_language_filter_no_matching_language():
+    """Test language filter falls back to first info when no language matches."""
+    no_match_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-NO-MATCH-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Czech Alert</event>
+            <severity>Minor</severity>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+        <info>
+            <language>en</language>
+            <event>English Alert</event>
+            <severity>Moderate</severity>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(no_match_xml)
+    alert = alerts[0]
+
+    # With filter for language that doesn't exist, should fall back to first info
+    alert.set_language_filter("fr")
+    assert alert.event == "Czech Alert"
+    assert alert.severity == "Minor"
+    assert alert.language == "cs"

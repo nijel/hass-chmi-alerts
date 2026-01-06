@@ -21,6 +21,7 @@ class CAPAlert:
     def __init__(self, alert_data: dict[str, Any]) -> None:
         """Initialize CAP alert."""
         self.data = alert_data
+        self._language_filter: str | None = None
 
     @property
     def identifier(self) -> str:
@@ -57,86 +58,178 @@ class CAPAlert:
         """Return alert info sections."""
         return self.data.get("info", [])
 
+    def set_language_filter(self, language_filter: str | None) -> None:
+        """Set the language filter for this alert.
+
+        This affects which info section is returned by properties like severity, event, etc.
+        """
+        self._language_filter = language_filter
+
+    def _info_matches_language(self, info_language: str, language_filter: str) -> bool:
+        """Check if an info section's language matches the language filter.
+
+        Args:
+            info_language: Language code from info section (e.g., 'cs', 'en-GB')
+            language_filter: Language filter to match against (e.g., 'cs', 'en')
+
+        Returns:
+            True if languages match (exact or prefix match), False otherwise
+
+        """
+        if not info_language or not language_filter:
+            return False
+
+        info_language_lower = info_language.lower()
+        language_filter_lower = language_filter.lower()
+
+        # Exact match or prefix match with hyphen separator
+        return (
+            info_language_lower == language_filter_lower
+            or info_language_lower.startswith(language_filter_lower + "-")
+        )
+
+    def _get_preferred_info(self) -> dict[str, Any] | None:
+        """Get the preferred info section based on language filter and severity.
+
+        Returns:
+            - If language filter is set and matches: the matching info with highest severity
+            - If language filter is set but no matches: falls back to first info section
+            - If no language filter: the first info section
+
+        """
+        if not self.info:
+            return None
+
+        # If no language filter, return first info
+        if not self._language_filter:
+            return self.info[0]
+
+        # Find all info sections matching the language filter
+        matching_infos = []
+
+        for info_item in self.info:
+            info_language = info_item.get("language", "")
+            if info_language and self._info_matches_language(
+                info_language, self._language_filter
+            ):
+                matching_infos.append(info_item)
+
+        # If no matching info found, return first (backward compatibility)
+        if not matching_infos:
+            return self.info[0]
+
+        # Return the matching info with highest severity
+        # Severity priority: Extreme > Severe > Moderate > Minor > Unknown
+        severity_order = {
+            "Extreme": 4,
+            "Severe": 3,
+            "Moderate": 2,
+            "Minor": 1,
+            "Unknown": 0,
+        }
+
+        best_info = matching_infos[0]
+        best_severity = severity_order.get(best_info.get("severity", ""), 0)
+
+        for info_item in matching_infos[1:]:
+            severity = severity_order.get(info_item.get("severity", ""), 0)
+            if severity > best_severity:
+                best_severity = severity
+                best_info = info_item
+
+        return best_info
+
     @property
     def headline(self) -> str:
-        """Return first headline from info."""
-        if self.info:
-            return self.info[0].get("headline", "")
+        """Return headline from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("headline", "")
         return ""
 
     @property
     def description(self) -> str:
-        """Return first description from info."""
-        if self.info:
-            return self.info[0].get("description", "")
+        """Return description from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("description", "")
         return ""
 
     @property
     def severity(self) -> str:
-        """Return first severity from info."""
-        if self.info:
-            return self.info[0].get("severity", "")
+        """Return severity from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("severity", "")
         return ""
 
     @property
     def urgency(self) -> str:
-        """Return first urgency from info."""
-        if self.info:
-            return self.info[0].get("urgency", "")
+        """Return urgency from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("urgency", "")
         return ""
 
     @property
     def certainty(self) -> str:
-        """Return first certainty from info."""
-        if self.info:
-            return self.info[0].get("certainty", "")
+        """Return certainty from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("certainty", "")
         return ""
 
     @property
     def event(self) -> str:
-        """Return first event from info."""
-        if self.info:
-            return self.info[0].get("event", "")
+        """Return event from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("event", "")
         return ""
 
     @property
     def effective(self) -> str:
-        """Return first effective time from info."""
-        if self.info:
-            return self.info[0].get("effective", "")
+        """Return effective time from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("effective", "")
         return ""
 
     @property
     def expires(self) -> str:
-        """Return first expires time from info."""
-        if self.info:
-            return self.info[0].get("expires", "")
+        """Return expires time from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("expires", "")
         return ""
 
     @property
     def instruction(self) -> str:
-        """Return first instruction from info."""
-        if self.info:
-            return self.info[0].get("instruction", "")
+        """Return instruction from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("instruction", "")
         return ""
 
     @property
     def category(self) -> str:
-        """Return first category from info."""
-        if self.info:
-            return self.info[0].get("category", "")
+        """Return category from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("category", "")
         return ""
 
     @property
     def response_type(self) -> str:
-        """Return first response type from info.
+        """Return first response type from preferred info section.
 
         Note: responseType can have multiple values, but this property
         returns only the first one for backward compatibility.
         Use response_types property to get all values.
         """
-        if self.info:
-            rt = self.info[0].get("responseType", "")
+        info = self._get_preferred_info()
+        if info:
+            rt = info.get("responseType", "")
             # Handle both list (new format) and string (old format)
             if isinstance(rt, list):
                 return rt[0] if rt else ""
@@ -145,9 +238,10 @@ class CAPAlert:
 
     @property
     def response_types(self) -> list[str]:
-        """Return all response types from first info section."""
-        if self.info:
-            rt = self.info[0].get("responseType", [])
+        """Return all response types from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            rt = info.get("responseType", [])
             # Handle both list (new format) and string (old format)
             if isinstance(rt, list):
                 return rt
@@ -157,35 +251,45 @@ class CAPAlert:
 
     @property
     def language(self) -> str:
-        """Return first language from info."""
-        if self.info:
-            return self.info[0].get("language", "")
+        """Return language from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("language", "")
         return ""
 
     @property
     def audience(self) -> str:
-        """Return first audience from info."""
-        if self.info:
-            return self.info[0].get("audience", "")
+        """Return audience from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("audience", "")
         return ""
 
     @property
     def sender_name(self) -> str:
-        """Return first sender name from info."""
-        if self.info:
-            return self.info[0].get("senderName", "")
+        """Return sender name from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("senderName", "")
         return ""
 
     @property
     def event_code(self) -> dict[str, str]:
-        """Return event code from first info section."""
-        if self.info:
-            return self.info[0].get("eventCode", {})
+        """Return event code from preferred info section."""
+        info = self._get_preferred_info()
+        if info:
+            return info.get("eventCode", {})
         return {}
 
     @property
     def areas(self) -> list[str]:
-        """Return list of area names from all info sections."""
+        """Return list of area names from all info sections.
+
+        Note: This property aggregates areas from ALL info sections, not just the
+        preferred one. This is intentional because different info sections (e.g.,
+        different languages) may have different area coverage, and we want to show
+        all affected areas for filtering purposes.
+        """
         area_names = []
         for info_item in self.info:
             for area in info_item.get("areas", []):
@@ -196,7 +300,13 @@ class CAPAlert:
 
     @property
     def geocodes(self) -> list[str]:
-        """Return list of all geocode values from all info sections."""
+        """Return list of all geocode values from all info sections.
+
+        Note: This property aggregates geocodes from ALL info sections, not just the
+        preferred one. This is intentional because different info sections (e.g.,
+        different languages) may have different area coverage, and we want to show
+        all affected geocodes for filtering purposes.
+        """
         geocode_values = set()
         for info_item in self.info:
             for area in info_item.get("areas", []):
@@ -236,19 +346,12 @@ class CAPAlert:
         """
         if not language_filter:
             return True
-        language_filter_lower = language_filter.lower()
 
-        # Check language in all info sections
+        # Check language in all info sections using the helper method
         for info_item in self.info:
             info_language = info_item.get("language", "")
-            if info_language:
-                info_language_lower = info_language.lower()
-                # Exact match or prefix match with hyphen separator
-                if (
-                    info_language_lower == language_filter_lower
-                    or info_language_lower.startswith(language_filter_lower + "-")
-                ):
-                    return True
+            if self._info_matches_language(info_language, language_filter):
+                return True
 
         return False
 
