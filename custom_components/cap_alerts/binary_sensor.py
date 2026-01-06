@@ -135,7 +135,9 @@ class CAPAlertsBinarySensor(
                     type_id = parts[0].strip()
                     type_name = parts[1].strip()
                     # Capitalize the type name properly
-                    type_name_formatted = type_name.replace("-", " ").title().replace(" ", "-")
+                    type_name_formatted = (
+                        type_name.replace("-", " ").title().replace(" ", "-")
+                    )
                     return f"{type_id}; {type_name_formatted}"
 
         # Fall back to deriving from event text
@@ -170,7 +172,8 @@ class CAPAlertsBinarySensor(
         if any(word in event_lower for word in ["heat", "hot", "high temp"]):
             return "5; High Temperature"
         if any(
-            word in event_lower for word in ["cold", "freeze", "frost", "low temp", "mráz"]
+            word in event_lower
+            for word in ["cold", "freeze", "frost", "low temp", "mráz"]
         ):
             return "6; Low Temperature"
         if any(word in event_lower for word in ["coastal", "sea", "tide"]):
@@ -212,8 +215,7 @@ class CAPAlertsBinarySensor(
             actionable_infos = alert.get_actionable_info_blocks(
                 self.coordinator.language_filter
             )
-            for info in actionable_infos:
-                all_actionable_infos.append((alert, info))
+            all_actionable_infos.extend((alert, info) for info in actionable_infos)
 
         # If no actionable alerts, return green status
         if not all_actionable_infos:
@@ -224,17 +226,15 @@ class CAPAlertsBinarySensor(
             }
 
         # Find the info block with highest severity
-        highest_alert = None
         highest_info = None
         highest_priority = 0
 
-        for alert, info in all_actionable_infos:
+        for _alert, info in all_actionable_infos:
             severity = info.get("severity", "")
             awareness = SEVERITY_TO_AWARENESS.get(severity, AWARENESS_LEVEL_GREEN)
             priority = self._LEVEL_PRIORITY.get(awareness, 0)
             if priority > highest_priority:
                 highest_priority = priority
-                highest_alert = alert
                 highest_info = info
 
         # Build details for all actionable alerts

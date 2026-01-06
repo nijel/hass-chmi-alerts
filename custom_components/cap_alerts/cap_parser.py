@@ -387,7 +387,7 @@ class CAPAlert:
             # Skip "no warning" type alerts
             # Czech: "Žádná výstraha", "Žádný výhled"
             # English: "No ... Warning", "Minor ... Warning" with Unlikely certainty
-            if event.startswith("Žádná výstraha") or event.startswith("Žádný výhled"):
+            if event.startswith(("Žádná výstraha", "Žádný výhled")):
                 continue
 
             # Also filter out English "Minor ... Warning" with Unlikely certainty
@@ -399,7 +399,7 @@ class CAPAlert:
             if (
                 certainty == "Unlikely"
                 and severity == "Minor"
-                and (event.startswith("Minor ") or event.startswith("No "))
+                and event.startswith(("Minor ", "No "))
             ):
                 continue
 
