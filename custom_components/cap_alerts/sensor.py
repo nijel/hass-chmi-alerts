@@ -245,11 +245,10 @@ class CAPAlertsSensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEntity):
             weatheralerts_severity = SEVERITY_TO_WEATHERALERTS.get(severity, "Advisory")
 
             # Create weatheralerts-compatible alert object
-            # The 'event' field must contain the full alert name with severity level keyword
-            # for MeteoalarmCard to parse correctly (e.g., "Extreme Cold Warning")
-            full_event_name = f"{event or 'Unknown Event'} {weatheralerts_severity}"
+            # The 'event' field should contain just the event type
+            # Severity is separate to avoid redundancy
             weatheralerts_alert = {
-                "event": full_event_name,
+                "event": event or "Unknown Event",
                 "severity": weatheralerts_severity,
                 "title": headline or event or "Weather Alert",
             }
