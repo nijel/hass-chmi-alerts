@@ -841,7 +841,7 @@ def test_all_new_fields_together():
 
 def test_language_filter_selects_preferred_info():
     """Test that language filter selects the info section with matching language and highest severity.
-    
+
     This is a regression test for the issue where alerts with multiple info sections
     in different languages would always return properties from the first info section,
     even when a language filter was applied.

@@ -60,29 +60,30 @@ class CAPAlert:
 
     def set_language_filter(self, language_filter: str | None) -> None:
         """Set the language filter for this alert.
-        
+
         This affects which info section is returned by properties like severity, event, etc.
         """
         self._language_filter = language_filter
 
     def _get_preferred_info(self) -> dict[str, Any] | None:
         """Get the preferred info section based on language filter and severity.
-        
+
         Returns:
             - If language filter is set: the info with highest severity that matches the language
             - Otherwise: the first info section
+
         """
         if not self.info:
             return None
-        
+
         # If no language filter, return first info
         if not self._language_filter:
             return self.info[0]
-        
+
         # Find all info sections matching the language filter
         matching_infos = []
         language_filter_lower = self._language_filter.lower()
-        
+
         for info_item in self.info:
             info_language = info_item.get("language", "")
             if info_language:
@@ -93,11 +94,11 @@ class CAPAlert:
                     or info_language_lower.startswith(language_filter_lower + "-")
                 ):
                     matching_infos.append(info_item)
-        
+
         # If no matching info found, return first (backward compatibility)
         if not matching_infos:
             return self.info[0]
-        
+
         # Return the matching info with highest severity
         # Severity priority: Extreme > Severe > Moderate > Minor > Unknown
         severity_order = {
@@ -106,16 +107,16 @@ class CAPAlert:
             "Moderate": 2,
             "Minor": 1,
         }
-        
+
         best_info = matching_infos[0]
         best_severity = severity_order.get(best_info.get("severity", ""), 0)
-        
+
         for info_item in matching_infos[1:]:
             severity = severity_order.get(info_item.get("severity", ""), 0)
             if severity > best_severity:
                 best_severity = severity
                 best_info = info_item
-        
+
         return best_info
 
     @property
