@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock
 
 import pytest
-from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
 
 from custom_components.chmi_alerts.config_flow import CHMIAlertsConfigFlow
 from custom_components.chmi_alerts.const import (
     CONF_AREA_FILTER,
     CONF_LANGUAGE_FILTER,
-    DOMAIN,
 )
 
 # Enable asyncio for all tests in this module
@@ -28,6 +26,18 @@ def mock_hass():
     return hass
 
 
+def get_language_default_from_schema(schema):
+    """Extract the default language value from the data schema.
+
+    Helper function to inspect the voluptuous schema and find the default
+    value for the language filter field.
+    """
+    for key in schema:
+        if hasattr(key, "schema") and key.schema == CONF_LANGUAGE_FILTER:
+            return key.default()
+    return None
+
+
 async def test_form_default_english(mock_hass):
     """Test the form with default English language."""
     flow = CHMIAlertsConfigFlow()
@@ -38,23 +48,16 @@ async def test_form_default_english(mock_hass):
 
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
-    
+
     # Check that the default language is English when HA language is English
-    schema_keys = result["data_schema"].schema.keys()
-    # Find the language filter key and check its default
-    for key in schema_keys:
-        if hasattr(key, 'schema') and key.schema == CONF_LANGUAGE_FILTER:
-            # The default should be "en"
-            assert key.default() == "en"
-            break
-    else:
-        pytest.fail("Language filter key not found in schema")
+    default_language = get_language_default_from_schema(result["data_schema"].schema)
+    assert default_language == "en"
 
 
 async def test_form_default_czech(mock_hass):
     """Test the form with default Czech language."""
     mock_hass.config.language = "cs"
-    
+
     flow = CHMIAlertsConfigFlow()
     flow.hass = mock_hass
 
@@ -63,17 +66,10 @@ async def test_form_default_czech(mock_hass):
 
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
-    
+
     # Check that the default language is Czech when HA language is Czech
-    schema_keys = result["data_schema"].schema.keys()
-    # Find the language filter key and check its default
-    for key in schema_keys:
-        if hasattr(key, 'schema') and key.schema == CONF_LANGUAGE_FILTER:
-            # The default should be "cs"
-            assert key.default() == "cs"
-            break
-    else:
-        pytest.fail("Language filter key not found in schema")
+    default_language = get_language_default_from_schema(result["data_schema"].schema)
+    assert default_language == "cs"
 
 
 async def test_form_create_entry():
@@ -81,13 +77,13 @@ async def test_form_create_entry():
     mock_hass = Mock()
     mock_hass.config = Mock()
     mock_hass.config.language = "en"
-    
+
     flow = CHMIAlertsConfigFlow()
     flow.hass = mock_hass
-    
+
     # Mock the async_set_unique_id method
     flow.async_set_unique_id = AsyncMock()
-    flow._abort_if_unique_id_configured = Mock()
+    flow._abort_if_unique_id_configured = Mock()  # noqa: SLF001
 
     # Provide user input
     user_input = {
@@ -108,13 +104,13 @@ async def test_form_create_entry_no_area_filter():
     mock_hass = Mock()
     mock_hass.config = Mock()
     mock_hass.config.language = "cs"
-    
+
     flow = CHMIAlertsConfigFlow()
     flow.hass = mock_hass
-    
+
     # Mock the async_set_unique_id method
     flow.async_set_unique_id = AsyncMock()
-    flow._abort_if_unique_id_configured = Mock()
+    flow._abort_if_unique_id_configured = Mock()  # noqa: SLF001
 
     # Provide user input without area filter
     user_input = {
