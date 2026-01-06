@@ -1,32 +1,26 @@
-# Example Lovelace cards for CAP Alerts with meteoalarm compatibility
+# Example Lovelace cards for CAP Alerts with weatheralerts compatibility
 
-# Card 1: Simple status card with awareness level
+# Card 1: Simple status card showing alert count
 type: entity
-entity: binary_sensor.cap_alerts_alert
-name: Weather Alert Status
+entity: sensor.cap_alerts_alert
+name: Weather Alert Count
 
 # Card 2: Conditional alert display (only shows when alerts are active)
 type: conditional
 conditions:
-  - entity: binary_sensor.cap_alerts_alert
-    state_not: "off"
+  - entity: sensor.cap_alerts_alert
+    state_not: "0"
 card:
   type: markdown
   content: >
-    ## ⚠️ Weather Alert - {{ states('binary_sensor.cap_alerts_alert') | upper }}
+    ## ⚠️ Weather Alerts - {{ states('sensor.cap_alerts_alert') }} Active
 
-    **Type:** {{ state_attr('binary_sensor.cap_alerts_alert', 'awareness_type') }}
-
-    **Active Alerts:** {{ state_attr('binary_sensor.cap_alerts_alert', 'alert_count') }}
-
-    ---
-
-    {% set alerts = state_attr('binary_sensor.cap_alerts_alert', 'alerts') %}
+    {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts_detailed') %}
     {% if alerts %}
       {% for alert in alerts %}
         ### {{ alert.headline }}
 
-        **Severity:** {{ alert.severity }} ({{ alert.awareness_level }})
+        **Severity:** {{ alert.severity }}
         **Urgency:** {{ alert.urgency }}
         **Areas:** {{ alert.area }}
 
@@ -43,19 +37,18 @@ card:
       {% endfor %}
     {% endif %}
 
-# Card 3: Detailed alert card with styling and awareness levels
+# Card 3: Detailed alert card with styling based on severity
 type: markdown
 content: >
-  {% set level = states('binary_sensor.cap_alerts_alert') %}
-  {% set count = state_attr('binary_sensor.cap_alerts_alert', 'alert_count') | int %}
-  {% if level != 'off' and count > 0 %}
-    {% set alerts = state_attr('binary_sensor.cap_alerts_alert', 'alerts') %}
+  {% set count = states('sensor.cap_alerts_alert') | int %}
+  {% if count > 0 %}
+    {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts_detailed') %}
     {% for alert in alerts %}
-      {% if alert.awareness_level == 'red' %}
+      {% if alert.severity == 'Extreme' %}
         # 🚨 EXTREME ALERT
-      {% elif alert.awareness_level == 'orange' %}
+      {% elif alert.severity == 'Severe' %}
         # ⚠️ SEVERE ALERT
-      {% elif alert.awareness_level == 'yellow' %}
+      {% elif alert.severity == 'Moderate' %}
         # ⚡ MODERATE ALERT
       {% else %}
         # ℹ️ ALERT
@@ -67,7 +60,6 @@ content: >
 
       | Property | Value |
       |----------|-------|
-      | Awareness Level | {{ alert.awareness_level | upper }} |
       | Severity | {{ alert.severity }} |
       | Urgency | {{ alert.urgency }} |
       | Certainty | {{ alert.certainty }} |
@@ -88,30 +80,27 @@ content: >
     All clear - no weather alerts at this time.
   {% endif %}
 
-# Card 4: Compact list view with awareness level
+# Card 4: Compact list view
 type: entities
 title: Weather Alerts
 entities:
-  - entity: binary_sensor.cap_alerts_alert
-    name: Alert Status
-  - type: attribute
-    entity: binary_sensor.cap_alerts_alert
-    attribute: awareness_type
-    name: Alert Type
-  - type: attribute
-    entity: binary_sensor.cap_alerts_alert
-    attribute: alert_count
+  - entity: sensor.cap_alerts_alert
     name: Active Alerts
   - type: conditional
     conditions:
-      - entity: binary_sensor.cap_alerts_alert
-        state_not: "off"
+      - entity: sensor.cap_alerts_alert
+        state_not: "0"
     row:
       type: markdown
       content: >
-        {% set alerts = state_attr('binary_sensor.cap_alerts_alert', 'alerts') %}
+        {% set alerts = state_attr('sensor.cap_alerts_alert', 'alerts_detailed') %}
         {% if alerts %}
           {% for alert in alerts %}
             **{{ alert.headline }}** ({{ alert.severity }})
           {% endfor %}
         {% endif %}
+
+# Card 5: Using with MeteoalarmCard
+type: custom:meteoalarm-card
+integration: weatheralerts
+entities: sensor.cap_alerts_alert

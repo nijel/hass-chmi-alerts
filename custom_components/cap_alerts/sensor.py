@@ -1,14 +1,11 @@
-"""Binary sensor platform for CAP Alerts integration."""
+"""Sensor platform for CAP Alerts integration."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass,
-    BinarySensorEntity,
-)
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -16,8 +13,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_AREA,
-    ATTR_AWARENESS_LEVEL,
-    ATTR_AWARENESS_TYPE,
     ATTR_CATEGORY,
     ATTR_CERTAINTY,
     ATTR_DESCRIPTION,
@@ -32,7 +27,6 @@ from .const import (
     ATTR_URGENCY,
     AWARENESS_ICONS,
     AWARENESS_LEVEL_GREEN,
-    AWARENESS_LEVEL_METEOALARM,
     AWARENESS_LEVEL_ORANGE,
     AWARENESS_LEVEL_RED,
     AWARENESS_LEVEL_YELLOW,
@@ -44,26 +38,32 @@ from .coordinator import CAPAlertsCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+# Mapping from our internal severity levels to weatheralerts severity format
+SEVERITY_TO_WEATHERALERTS = {
+    "Minor": "Advisory",
+    "Moderate": "Watch",
+    "Severe": "Warning",
+    "Extreme": "Warning",
+}
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up CAP Alerts binary sensor from a config entry."""
+    """Set up CAP Alerts sensor from a config entry."""
     coordinator: CAPAlertsCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    # Create a binary sensor
-    async_add_entities([CAPAlertsBinarySensor(coordinator, entry)])
+    # Create a sensor
+    async_add_entities([CAPAlertsSensor(coordinator, entry)])
 
 
-class CAPAlertsBinarySensor(
-    CoordinatorEntity[CAPAlertsCoordinator], BinarySensorEntity
-):
-    """Binary sensor showing CAP alerts with meteoalarm compatibility."""
+class CAPAlertsSensor(CoordinatorEntity[CAPAlertsCoordinator], SensorEntity):
+    """Sensor showing CAP alerts with weatheralerts compatibility."""
 
     _attr_has_entity_name = True
-    _attr_device_class = BinarySensorDeviceClass.SAFETY
+    _attr_native_unit_of_measurement = "alerts"
 
     # Priority order for awareness levels: red > orange > yellow > green
     _LEVEL_PRIORITY = {
@@ -78,7 +78,7 @@ class CAPAlertsBinarySensor(
         coordinator: CAPAlertsCoordinator,
         entry: ConfigEntry,
     ) -> None:
-        """Initialize the binary sensor."""
+        """Initialize the sensor."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.entry_id}_alert"
         self._attr_name = "Alert"
@@ -186,10 +186,20 @@ class CAPAlertsBinarySensor(
         return "1; Wind"
 
     @property
-    def is_on(self) -> bool:
-        """Return True if alerts are active."""
-        awareness_level = self._get_highest_awareness_level()
-        return awareness_level != AWARENESS_LEVEL_GREEN
+    def native_value(self) -> int:
+        """Return the state of the sensor - number of active alerts."""
+        if not self.coordinator.data:
+            return 0
+
+        # Count all actionable info blocks from all alerts
+        alert_count = 0
+        for alert in self.coordinator.data:
+            actionable_infos = alert.get_actionable_info_blocks(
+                self.coordinator.language_filter
+            )
+            alert_count += len(actionable_infos)
+
+        return alert_count
 
     @property
     def icon(self) -> str:
@@ -202,10 +212,8 @@ class CAPAlertsBinarySensor(
         """Return additional state attributes."""
         if not self.coordinator.data:
             return {
-                ATTR_AWARENESS_LEVEL: AWARENESS_LEVEL_METEOALARM[AWARENESS_LEVEL_GREEN],
-                ATTR_AWARENESS_TYPE: None,
-                "alert_count": 0,
-                "attribution": "Information provided by MeteoAlarm",
+                "integration": "weatheralerts",
+                "alerts": [],
             }
 
         # Collect all actionable info blocks from all alerts
@@ -218,33 +226,38 @@ class CAPAlertsBinarySensor(
             )
             all_actionable_infos.extend((alert, info) for info in actionable_infos)
 
-        # If no actionable alerts, return green status
+        # If no actionable alerts, return empty
         if not all_actionable_infos:
             return {
-                ATTR_AWARENESS_LEVEL: AWARENESS_LEVEL_METEOALARM[AWARENESS_LEVEL_GREEN],
-                ATTR_AWARENESS_TYPE: None,
-                "alert_count": 0,
-                "attribution": "Information provided by MeteoAlarm",
+                "integration": "weatheralerts",
+                "alerts": [],
             }
 
-        # Find the info block with highest severity
-        highest_info = None
-        highest_priority = 0
-
+        # Build weatheralerts-compatible alerts array
+        # Each alert needs: event, severity, title
+        weatheralerts_alerts = []
         for _alert, info in all_actionable_infos:
             severity = info.get("severity", "")
-            awareness = SEVERITY_TO_AWARENESS.get(severity, AWARENESS_LEVEL_GREEN)
-            priority = self._LEVEL_PRIORITY.get(awareness, 0)
-            if priority > highest_priority:
-                highest_priority = priority
-                highest_info = info
+            event = info.get("event", "")
+            headline = info.get("headline", "")
 
-        # Build details for all actionable alerts
+            # Convert severity to weatheralerts format (Advisory, Watch, Warning)
+            weatheralerts_severity = SEVERITY_TO_WEATHERALERTS.get(severity, "Advisory")
+
+            # Create weatheralerts-compatible alert object
+            # The 'event' field should contain just the event type
+            # Severity is separate to avoid redundancy
+            weatheralerts_alert = {
+                "event": event or "Unknown Event",
+                "severity": weatheralerts_severity,
+                "title": headline or event or "Weather Alert",
+            }
+            weatheralerts_alerts.append(weatheralerts_alert)
+
+        # Also build detailed alerts for additional information
         alerts_details = []
         for alert, info in all_actionable_infos:
             severity = info.get("severity", "")
-            awareness_level = SEVERITY_TO_AWARENESS.get(severity, AWARENESS_LEVEL_GREEN)
-            meteoalarm_level = AWARENESS_LEVEL_METEOALARM[awareness_level]
 
             # Get parameters and use awareness_type if available
             parameters = info.get("parameters", {})
@@ -277,29 +290,12 @@ class CAPAlertsBinarySensor(
                     else info.get("responseType", "")
                 ),
                 ATTR_AREA: ", ".join(area_names),
-                ATTR_AWARENESS_LEVEL: meteoalarm_level,
-                ATTR_AWARENESS_TYPE: meteoalarm_type,
+                "awareness_type": meteoalarm_type,
             }
             alerts_details.append(alert_info)
 
-        # Get highest awareness level in MeteoalarmCard format
-        highest_severity = highest_info.get("severity", "") if highest_info else ""
-        highest_awareness_level = SEVERITY_TO_AWARENESS.get(
-            highest_severity, AWARENESS_LEVEL_GREEN
-        )
-        meteoalarm_awareness_level = AWARENESS_LEVEL_METEOALARM[highest_awareness_level]
-
-        # Get awareness_type for highest alert
-        highest_params = highest_info.get("parameters", {}) if highest_info else {}
-        highest_event = highest_info.get("event", "") if highest_info else ""
-        meteoalarm_awareness_type = self._get_meteoalarm_event_type(
-            highest_event, highest_params
-        )
-
         return {
-            ATTR_AWARENESS_LEVEL: meteoalarm_awareness_level,
-            ATTR_AWARENESS_TYPE: meteoalarm_awareness_type,
-            "alert_count": len(all_actionable_infos),
-            "alerts": alerts_details,
-            "attribution": "Information provided by MeteoAlarm",
+            "integration": "weatheralerts",
+            "alerts": weatheralerts_alerts,
+            "alerts_detailed": alerts_details,
         }
