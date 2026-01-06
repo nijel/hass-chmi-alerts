@@ -73,6 +73,7 @@ After configuration, the integration creates a binary sensor entity showing aler
 - **Attributes**: Detailed information including:
   - **awareness_level**: Highest alert level in MeteoalarmCard format ("2; Yellow", "3; Orange", "4; Red")
   - **awareness_type**: Event type in MeteoalarmCard format ("1; Wind", "10; Rain", etc.)
+  - **attribution**: Always set to "Information provided by MeteoAlarm" for MeteoalarmCard compatibility
   - **alert_count**: Number of active alerts
   - **alerts**: List of all active alerts with:
     - Headline
@@ -102,6 +103,7 @@ The binary sensor provides meteoalarm-compatible attributes, making it easy to u
 
   - `awareness_level`: "2; Yellow", "3; Orange", "4; Red"
   - `awareness_type`: "1; Wind", "10; Rain", etc.
+  - `attribution`: "Information provided by MeteoAlarm" (required for MeteoalarmCard to recognize the integration)
 
 The sensor icon automatically changes based on the current awareness level.
 

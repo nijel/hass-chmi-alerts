@@ -205,6 +205,7 @@ class CAPAlertsBinarySensor(
                 ATTR_AWARENESS_LEVEL: AWARENESS_LEVEL_METEOALARM[AWARENESS_LEVEL_GREEN],
                 ATTR_AWARENESS_TYPE: None,
                 "alert_count": 0,
+                "attribution": "Information provided by MeteoAlarm",
             }
 
         # Collect all actionable info blocks from all alerts
@@ -299,4 +300,5 @@ class CAPAlertsBinarySensor(
             ATTR_AWARENESS_TYPE: meteoalarm_awareness_type,
             "alert_count": len(all_actionable_infos),
             "alerts": alerts_details,
+            "attribution": "Information provided by MeteoAlarm",
         }
