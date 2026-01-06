@@ -129,10 +129,31 @@ class CAPAlert:
 
     @property
     def response_type(self) -> str:
-        """Return first response type from info."""
+        """Return first response type from info.
+
+        Note: responseType can have multiple values, but this property
+        returns only the first one for backward compatibility.
+        Use response_types property to get all values.
+        """
         if self.info:
-            return self.info[0].get("responseType", "")
+            rt = self.info[0].get("responseType", "")
+            # Handle both list (new format) and string (old format)
+            if isinstance(rt, list):
+                return rt[0] if rt else ""
+            return rt
         return ""
+
+    @property
+    def response_types(self) -> list[str]:
+        """Return all response types from first info section."""
+        if self.info:
+            rt = self.info[0].get("responseType", [])
+            # Handle both list (new format) and string (old format)
+            if isinstance(rt, list):
+                return rt
+            # Old format: single string
+            return [rt] if rt else []
+        return []
 
     @property
     def language(self) -> str:
@@ -140,6 +161,27 @@ class CAPAlert:
         if self.info:
             return self.info[0].get("language", "")
         return ""
+
+    @property
+    def audience(self) -> str:
+        """Return first audience from info."""
+        if self.info:
+            return self.info[0].get("audience", "")
+        return ""
+
+    @property
+    def sender_name(self) -> str:
+        """Return first sender name from info."""
+        if self.info:
+            return self.info[0].get("senderName", "")
+        return ""
+
+    @property
+    def event_code(self) -> dict[str, str]:
+        """Return event code from first info section."""
+        if self.info:
+            return self.info[0].get("eventCode", {})
+        return {}
 
     @property
     def areas(self) -> list[str]:
@@ -284,7 +326,6 @@ def _parse_info_element(info_elem: ET.Element, ns: str) -> dict[str, Any]:
         "language",
         "category",
         "event",
-        "responseType",
         "urgency",
         "severity",
         "certainty",
@@ -296,10 +337,21 @@ def _parse_info_element(info_elem: ET.Element, ns: str) -> dict[str, Any]:
         "effective",
         "onset",
         "expires",
+        "audience",
+        "senderName",
     ]:
         elem = info_elem.find(f"{ns}{field}")
         if elem is not None and elem.text:
             info_data[field] = elem.text.strip()
+
+    # Parse responseType - can have multiple values
+    response_types = [
+        rt_elem.text.strip()
+        for rt_elem in info_elem.findall(f"{ns}responseType")
+        if rt_elem.text
+    ]
+    if response_types:
+        info_data["responseType"] = response_types
 
     # Parse areas
     areas = []
@@ -336,6 +388,18 @@ def _parse_info_element(info_elem: ET.Element, ns: str) -> dict[str, Any]:
 
     if areas:
         info_data["areas"] = areas
+
+    # Parse eventCode elements
+    event_codes = {}
+    for ec in info_elem.findall(f"{ns}eventCode"):
+        value_name = ec.find(f"{ns}valueName")
+        value = ec.find(f"{ns}value")
+        if value_name is not None and value is not None:
+            if value_name.text and value.text:
+                event_codes[value_name.text.strip()] = value.text.strip()
+
+    if event_codes:
+        info_data["eventCode"] = event_codes
 
     # Parse parameters
     parameters = {}

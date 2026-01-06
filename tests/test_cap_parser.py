@@ -640,3 +640,200 @@ def test_multiple_geocodes_same_valuename():
     # Test that non-existent codes don't match
     assert alert.matches_area("5106") is False
     assert alert.matches_area("CZ05106") is False
+
+
+def test_multiple_response_types():
+    """Test parsing multiple responseType values in a single info section."""
+    multi_response_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-RESPONSE-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>en</language>
+            <event>Severe Weather</event>
+            <responseType>Prepare</responseType>
+            <responseType>Avoid</responseType>
+            <responseType>Monitor</responseType>
+            <severity>Moderate</severity>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(multi_response_xml)
+    assert len(alerts) == 1
+    alert = alerts[0]
+
+    # Test new response_types property (returns list)
+    response_types = alert.response_types
+    assert isinstance(response_types, list)
+    assert len(response_types) == 3
+    assert "Prepare" in response_types
+    assert "Avoid" in response_types
+    assert "Monitor" in response_types
+
+    # Test backward compatibility with response_type property (returns first)
+    assert alert.response_type == "Prepare"
+
+
+def test_audience_field():
+    """Test parsing audience field from info section."""
+    audience_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-AUDIENCE-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Test Alert</event>
+            <severity>Minor</severity>
+            <audience>veřejnost, HZS, web, Meteoalarm</audience>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(audience_xml)
+    assert len(alerts) == 1
+    alert = alerts[0]
+
+    # Test audience property
+    assert alert.audience == "veřejnost, HZS, web, Meteoalarm"
+
+
+def test_sender_name_field():
+    """Test parsing senderName field from info section."""
+    sender_name_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-SENDER-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Test Alert</event>
+            <severity>Minor</severity>
+            <senderName>ČHMÚ, Petra Sýkorová</senderName>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(sender_name_xml)
+    assert len(alerts) == 1
+    alert = alerts[0]
+
+    # Test sender_name property
+    assert alert.sender_name == "ČHMÚ, Petra Sýkorová"
+
+
+def test_event_code_field():
+    """Test parsing eventCode field from info section."""
+    event_code_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-EVENTCODE-001</identifier>
+        <sender>test@example.com</sender>
+        <sent>2026-01-05T10:00:00+00:00</sent>
+        <status>Actual</status>
+        <msgType>Alert</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <event>Silný mráz</event>
+            <severity>Moderate</severity>
+            <eventCode>
+                <valueName>SIVS</valueName>
+                <value>I.4</value>
+            </eventCode>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(event_code_xml)
+    assert len(alerts) == 1
+    alert = alerts[0]
+
+    # Test event_code property
+    event_code = alert.event_code
+    assert isinstance(event_code, dict)
+    assert "SIVS" in event_code
+    assert event_code["SIVS"] == "I.4"
+
+
+def test_all_new_fields_together():
+    """Test parsing all new fields together in a realistic CAP alert."""
+    full_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+        <identifier>TEST-FULL-001</identifier>
+        <sender>chmi@chmi.cz</sender>
+        <sent>2026-01-05T10:44:06+01:00</sent>
+        <status>Actual</status>
+        <msgType>Update</msgType>
+        <scope>Public</scope>
+        <info>
+            <language>cs</language>
+            <category>Met</category>
+            <event>Silný mráz</event>
+            <responseType>Prepare</responseType>
+            <responseType>Avoid</responseType>
+            <responseType>Monitor</responseType>
+            <urgency>Future</urgency>
+            <severity>Moderate</severity>
+            <certainty>Likely</certainty>
+            <audience>veřejnost, HZS, web, Meteoalarm</audience>
+            <eventCode>
+                <valueName>SIVS</valueName>
+                <value>I.4</value>
+            </eventCode>
+            <onset>2026-01-05T21:00:00+01:00</onset>
+            <expires>2026-01-08T10:00:00+01:00</expires>
+            <senderName>ČHMÚ, Petra Sýkorová</senderName>
+            <description>Během noci se místy očekává pokles teploty vzduchu pod -12 °C.</description>
+            <instruction>Nebezpečí prochladnutí a omrznutí nechráněných částí těla.</instruction>
+            <area>
+                <areaDesc>Test Area</areaDesc>
+                <geocode>
+                    <valueName>CISORP</valueName>
+                    <value>2101</value>
+                </geocode>
+            </area>
+        </info>
+    </alert>
+    """
+
+    alerts = parse_cap_xml(full_xml)
+    assert len(alerts) == 1
+    alert = alerts[0]
+
+    # Verify all new fields are parsed correctly
+    assert alert.audience == "veřejnost, HZS, web, Meteoalarm"
+    assert alert.sender_name == "ČHMÚ, Petra Sýkorová"
+    assert alert.event_code == {"SIVS": "I.4"}
+    assert alert.response_types == ["Prepare", "Avoid", "Monitor"]
+    assert alert.response_type == "Prepare"  # Backward compatibility
+
+    # Verify existing fields still work
+    assert alert.event == "Silný mráz"
+    assert alert.severity == "Moderate"
+    assert (
+        alert.description
+        == "Během noci se místy očekává pokles teploty vzduchu pod -12 °C."
+    )
