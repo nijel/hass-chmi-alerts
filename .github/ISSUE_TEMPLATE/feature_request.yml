@@ -1,0 +1,58 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for the CAP Alerts integration
+title: '[Feature]: '
+labels: [enhancement]
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thanks for suggesting a feature! Please describe your idea below.
+
+- type: textarea
+  id: problem
+  attributes:
+    label: Is your feature request related to a problem?
+    description: A clear and concise description of what the problem is.
+    placeholder: I'm always frustrated when...
+  validations:
+    required: false
+
+- type: textarea
+  id: solution
+  attributes:
+    label: Describe the solution you'd like
+    description: A clear and concise description of what you want to happen.
+    placeholder: I would like to see...
+  validations:
+    required: true
+
+- type: textarea
+  id: alternatives
+  attributes:
+    label: Describe alternatives you've considered
+    description: A clear and concise description of any alternative solutions or features you've considered.
+    placeholder: I've also considered...
+  validations:
+    required: false
+
+- type: textarea
+  id: additional-context
+  attributes:
+    label: Additional Context
+    description: |
+      Add any other context or screenshots about the feature request here.
+      - Use cases
+      - Examples from other integrations
+      - Benefits
+    placeholder: Any additional information...
+  validations:
+    required: false
+
+- type: checkboxes
+  id: terms
+  attributes:
+    label: Checklist
+    description: Please confirm the following
+    options:
+    - label: I have searched existing issues to ensure this is not a duplicate
+      required: true
