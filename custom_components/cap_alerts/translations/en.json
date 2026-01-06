@@ -7,7 +7,14 @@
         "data": {
           "feed_url": "CAP Feed URL",
           "area_filter": "Area Filter (optional)",
+          "language_filter": "Language Filter (optional, e.g., 'en', 'cs', or 'cs-CZ')",
           "scan_interval": "Update Interval (seconds)"
+        },
+        "data_description": {
+          "feed_url": "URL of the CAP (Common Alerting Protocol) XML feed to monitor for alerts",
+          "area_filter": "Filter alerts by area name or geocode. Matches against areaDesc and geocode tags in the CAP XML. Leave empty to receive all alerts.",
+          "language_filter": "Filter alerts by language code (e.g., 'en', 'cs', 'cs-CZ'). Leave empty to receive alerts in all languages.",
+          "scan_interval": "How often to check for new alerts, in seconds"
         }
       }
     },

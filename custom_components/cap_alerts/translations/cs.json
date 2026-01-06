@@ -7,7 +7,14 @@
         "data": {
           "feed_url": "URL CAP feedu",
           "area_filter": "Filtr oblasti (volitelné)",
+          "language_filter": "Filtr jazyka (volitelné, např. 'en', 'cs' nebo 'cs-CZ')",
           "scan_interval": "Interval aktualizace (sekundy)"
+        },
+        "data_description": {
+          "feed_url": "URL CAP (Common Alerting Protocol) XML feedu pro sledování výstrah",
+          "area_filter": "Filtrování výstrah podle názvu oblasti nebo geokódu. Filtruje proti tagům areaDesc a geocode v CAP XML. Ponechte prázdné pro příjem všech výstrah.",
+          "language_filter": "Filtrování výstrah podle kódu jazyka (např. 'en', 'cs', 'cs-CZ'). Ponechte prázdné pro příjem výstrah ve všech jazycích.",
+          "scan_interval": "Jak často kontrolovat nové výstrahy, v sekundách"
         }
       }
     },
