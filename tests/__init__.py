@@ -1,1 +1,1 @@
-"""Tests for CAP Alerts integration."""
+"""Tests for CHMI Alerts integration."""

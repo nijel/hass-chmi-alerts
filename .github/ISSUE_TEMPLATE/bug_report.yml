@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a problem with the CAP Alerts integration
+description: Report a problem with the CHMI Alerts integration
 title: '[Bug]: '
 labels: [bug]
 body:
@@ -20,8 +20,8 @@ body:
 - type: input
   id: integration-version
   attributes:
-    label: CAP Alerts Integration Version
-    description: What version of the CAP Alerts integration are you using?
+    label: CHMI Alerts Integration Version
+    description: What version of the CHMI Alerts integration are you using?
     placeholder: e.g., 0.1.0
   validations:
     required: true
@@ -42,10 +42,9 @@ body:
   attributes:
     label: Configuration
     description: |
-      Please provide your configuration details for the CAP Alerts integration.
-      You can find these in Settings → Devices & Services → CAP Alerts → Configure.
+      Please provide your configuration details for the CHMI Alerts integration.
+      You can find these in Settings → Devices & Services → CHMI Alerts → Configure.
     placeholder: |
-      CAP Feed URL: https://example.com/cap.xml
       Area Filter: Prague
       Update Interval: 300 seconds
   validations:
@@ -57,7 +56,8 @@ body:
     label: CAP XML Sample
     description: |
       If possible, provide the CAP XML content that triggered the issue.
-      This is crucial for reproducing the problem. You can usually access the XML by visiting the feed URL directly.
+      This is crucial for reproducing the problem. You can access the CHMI XML feed at:
+      https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml
       If the XML is very large, please include at least one complete `<alert>` element that causes the issue.
     placeholder: |
       <?xml version="1.0" encoding="UTF-8"?>
@@ -98,7 +98,7 @@ body:
       logger:
         default: info
         logs:
-          custom_components.cap_alerts: debug
+          custom_components.chmi_alerts: debug
       ```
     render: text
   validations:

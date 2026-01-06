@@ -1,4 +1,4 @@
-"""Binary sensor platform for CAP Alerts integration."""
+"""Binary sensor platform for CHMI Alerts integration."""
 
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up CAP Alerts binary sensor from a config entry."""
+    """Set up CHMI Alerts binary sensor from a config entry."""
     coordinator: CAPAlertsCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     # Create a binary sensor
