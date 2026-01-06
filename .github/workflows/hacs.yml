@@ -15,6 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
     - name: HACS Action
-      uses: hacs/action@main
+      uses: hacs/action@d556e736723344f83838d08488c983a15381059a # 22.5.0
       with:
         category: integration
