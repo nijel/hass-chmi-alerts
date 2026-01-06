@@ -1,5 +1,7 @@
 # CAP Alerts for Home Assistant
 
+[![🔌 Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=nijel&repository=hass-cap-alerts&category=integration)
+
 A Home Assistant custom integration for fetching and displaying CAP (Common Alerting Protocol) alerts.
 
 ## Features
