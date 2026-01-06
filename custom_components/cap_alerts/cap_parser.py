@@ -125,6 +125,7 @@ class CAPAlert:
             "Severe": 3,
             "Moderate": 2,
             "Minor": 1,
+            "Unknown": 0,
         }
 
         best_info = matching_infos[0]
