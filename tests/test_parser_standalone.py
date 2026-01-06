@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Standalone test for CAP parser without requiring Home Assistant."""
+"""Standalone test for CHMI alerts parser without requiring Home Assistant."""
 
 import sys
 from pathlib import Path

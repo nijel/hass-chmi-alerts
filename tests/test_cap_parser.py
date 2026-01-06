@@ -1,4 +1,4 @@
-"""Tests for CAP parser."""
+"""Tests for CHMI alerts parser."""
 
 import sys
 from pathlib import Path
