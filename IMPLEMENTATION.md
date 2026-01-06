@@ -1,12 +1,12 @@
-# CAP Alerts Integration - Implementation Summary
+# CHMI Alerts Integration - Implementation Summary
 
 ## Overview
 
-This repository contains a complete Home Assistant custom integration for fetching and displaying CAP (Common Alerting Protocol) alerts. The integration is designed to be generic and work with any CAP 1.2 compliant XML feed, with pre-configured support for CHMI (Czech Hydrometeorological Institute).
+This repository contains a complete Home Assistant custom integration for fetching and displaying weather alerts from CHMI (Czech Hydrometeorological Institute). The integration uses the CAP (Common Alerting Protocol) v1.2 standard to fetch and parse alerts.
 
-## What is CAP?
+## What is CHMI?
 
-CAP (Common Alerting Protocol) is an international standard (OASIS) for public warning and emergency alerts. It allows meteorological services, civil defense agencies, and other organizations to distribute alerts in a standardized XML format.
+CHMI (Český hydrometeorologický ústav / Czech Hydrometeorological Institute) is the official meteorological service of the Czech Republic. They provide weather alerts using the CAP (Common Alerting Protocol) standard, an international format for public warnings and emergency alerts.
 
 ## Implementation Details
 
@@ -14,7 +14,7 @@ CAP (Common Alerting Protocol) is an international standard (OASIS) for public w
 
 1. **CAP Parser (`cap_parser.py`)**
 
-   - Parses CAP 1.2 XML format
+   - Parses CAP 1.2 XML format from CHMI feed
    - Supports both direct CAP XML and Atom feeds containing CAP alerts
    - Extracts all standard CAP fields (severity, urgency, certainty, etc.)
    - Parses geocode values (CISORP, EMMA_ID, etc.) from area sections
@@ -23,52 +23,56 @@ CAP (Common Alerting Protocol) is an international standard (OASIS) for public w
 
 1. **Data Coordinator (`coordinator.py`)**
 
-   - Fetches CAP feeds asynchronously using aiohttp
+   - Fetches CHMI CAP feed asynchronously using aiohttp
+   - Hardcoded feed URL: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
    - Configurable update intervals (default: 5 minutes)
    - Proper error handling and timeout management
    - Filters alerts based on user-defined area or geocode filter
 
-1. **Sensor Platform (`sensor.py`)**
+1. **Binary Sensor Platform (`binary_sensor.py`)**
 
-   - Creates a sensor showing the count of active alerts
+   - Creates a binary sensor showing alert status
+   - On when alerts are active, Off when no alerts
    - Stores all alert details in sensor attributes
+   - MeteoalarmCard compatible
    - Each alert includes: headline, description, severity, urgency, certainty, event, areas, times, instructions
 
 1. **Config Flow (`config_flow.py`)**
 
    - UI-based configuration (no YAML editing required)
-   - Validates feed URLs
-   - Prevents duplicate configurations
+   - No URL configuration needed (CHMI feed is hardcoded)
+   - Prevents duplicate configurations with same area filter
    - User-friendly setup wizard
 
 1. **Integration Setup (`__init__.py`)**
 
    - Handles integration lifecycle
-   - Sets up coordinator and platforms
+   - Sets up coordinator and platforms with hardcoded CHMI URL
    - Proper cleanup on unload
 
 ### Features
 
-✅ **Generic CAP Support**: Works with any CAP 1.2 compliant feed
+✅ **CHMI-Specific**: Dedicated integration for Czech weather alerts
+✅ **No URL Configuration**: Hardcoded to CHMI feed for simplicity
 ✅ **Area Filtering**: Filter alerts by geographic area description or geocode values (CISORP, EMMA_ID, etc.)
 ✅ **Configurable Updates**: Set your own update interval
 ✅ **Rich Alert Data**: Access all CAP fields through sensor attributes
 ✅ **Multilingual**: English and Czech translations included
-✅ **HACS Ready**: Prepared for HACS distribution
+✅ **MeteoalarmCard Compatible**: Works with popular weather alert cards
 ✅ **Well Tested**: Unit tests for parser functionality
 ✅ **Documented**: Comprehensive documentation and examples
 
 ### File Structure
 
 ```
-custom_components/cap_alerts/
+custom_components/chmi_alerts/
 ├── __init__.py          # Integration setup and lifecycle
 ├── cap_parser.py        # CAP XML parser
 ├── config_flow.py       # UI configuration flow
 ├── const.py            # Constants and configuration keys
 ├── coordinator.py      # Data update coordinator
 ├── manifest.json       # Integration metadata
-├── sensor.py           # Sensor platform
+├── binary_sensor.py    # Binary sensor platform
 ├── strings.json        # Base translations
 └── translations/       # Localized translations
     ├── en.json         # English
@@ -80,7 +84,7 @@ custom_components/cap_alerts/
 Each CAP alert provides:
 
 - **identifier**: Unique alert ID
-- **sender**: Who issued the alert
+- **sender**: Who issued the alert (CHMI)
 - **headline**: Brief summary
 - **description**: Detailed description
 - **severity**: Minor, Moderate, Severe, Extreme
@@ -96,29 +100,22 @@ Each CAP alert provides:
 
 ## Usage Scenarios
 
-### 1. CHMI (Czech Republic)
+### 1. All Czech Republic
 
-Monitor weather alerts from the Czech Hydrometeorological Institute:
+Monitor all weather alerts for the entire country with no area filter.
 
-- **Feed URL**: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
-- **Examples**: Storm warnings, flood alerts, extreme heat warnings
-
-### 2. Multiple Regions
+### 2. Specific Regions
 
 Set up multiple instances to monitor different regions:
 
 - One for Prague only
 - One for Central Bohemia
+- One for Moravia
 - One for all of Czech Republic
 
-### 3. Other CAP Feeds
+### 3. Geocode-Based Filtering
 
-The integration works with any CAP 1.2 compliant feed:
-
-- National weather services
-- Emergency management agencies
-- Tsunami warning centers
-- Any service providing CAP XML
+Use CISORP or EMMA_ID codes to filter alerts for specific administrative regions.
 
 ## Integration with Home Assistant
 
@@ -137,8 +134,8 @@ Display alerts using:
 
 - Conditional cards (show only when alerts are active)
 - Markdown cards with formatted alert details
-- Entity cards showing alert count
-- Custom cards with severity-based styling
+- Entity cards showing alert status
+- MeteoalarmCard for beautiful weather alert display
 
 ### Scripts
 
@@ -200,7 +197,6 @@ Potential improvements:
 - Alert history tracking
 - Severity-based binary sensors
 - Alert expiration notifications
-- Support for CAP 1.1 feeds
 - Polygon/circle area matching
 - Multi-language alert display
 
@@ -231,11 +227,11 @@ Contributions welcome! Please:
 
 For questions, issues, or feature requests:
 
-- GitHub Issues: https://github.com/nijel/hass-cap-alerts/issues
-- GitHub Discussions: https://github.com/nijel/hass-cap-alerts/discussions
+- GitHub Issues: https://github.com/nijel/hass-chmi-alerts/issues
+- GitHub Discussions: https://github.com/nijel/hass-chmi-alerts/discussions
 
 ## Credits
 
 - Created by @nijel
 - CAP specification by OASIS Emergency Management TC
-- Inspired by the need for weather alerts in Home Assistant
+- Data provided by CHMI (Czech Hydrometeorological Institute)

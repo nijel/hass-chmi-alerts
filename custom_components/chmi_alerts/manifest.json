@@ -1,0 +1,14 @@
+{
+  "domain": "chmi_alerts",
+  "name": "CHMI Alerts",
+  "codeowners": [
+    "@nijel"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/nijel/hass-chmi-alerts",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/nijel/hass-chmi-alerts/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

@@ -1,5 +1,5 @@
 {
-  "name": "CAP Alerts",
+  "name": "CHMI Alerts",
   "render_readme": true,
   "homeassistant": "2023.1.0"
 }

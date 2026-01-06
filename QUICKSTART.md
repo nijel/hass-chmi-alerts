@@ -2,15 +2,14 @@
 
 ## 1. Install
 
-Copy `custom_components/cap_alerts` to your Home Assistant `config/custom_components/` directory and restart.
+Copy `custom_components/chmi_alerts` to your Home Assistant `config/custom_components/` directory and restart.
 
 ## 2. Configure
 
 1. Go to **Settings** → **Devices & Services**
 1. Click **+ Add Integration**
-1. Search for "CAP Alerts"
+1. Search for "CHMI Alerts"
 1. Enter:
-   - **Feed URL**: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml` (for CHMI)
    - **Area Filter**: Leave empty for all alerts, or enter area name (e.g., "Prague") or geocode (e.g., "2102", "CZ02102")
    - **Update Interval**: `300` (5 minutes)
 
@@ -18,19 +17,19 @@ Copy `custom_components/cap_alerts` to your Home Assistant `config/custom_compon
 
 ### View Alerts
 
-Check the sensor: `sensor.cap_alerts_alert_count`
+Check the sensor: `binary_sensor.chmi_alerts_alert`
 
 ### Dashboard Card
 
 ```yaml
 type: conditional
 conditions:
-  - entity: sensor.cap_alerts_alert_count
-    state_not: "0"
+  - entity: binary_sensor.chmi_alerts_alert
+    state: 'on'
 card:
   type: markdown
   content: >
-    {% set alerts = state_attr('sensor.cap_alerts_alert_count', 'alerts') %}
+    {% set alerts = state_attr('binary_sensor.chmi_alerts_alert', 'alerts') %}
     {% for alert in alerts %}
       ## {{ alert.headline }}
       {{ alert.description }}
@@ -46,15 +45,15 @@ card:
 automation:
   - alias: "Weather Alert"
     trigger:
-      platform: numeric_state
-      entity_id: sensor.cap_alerts_alert_count
-      above: 0
+      platform: state
+      entity_id: binary_sensor.chmi_alerts_alert
+      to: 'on'
     action:
       service: notify.mobile_app
       data:
         title: "Weather Alert!"
         message: >
-          {{ state_attr('sensor.cap_alerts_alert_count', 'alerts')[0].headline }}
+          {{ state_attr('binary_sensor.chmi_alerts_alert', 'alerts')[0].headline }}
 ```
 
 ## Alert Attributes
@@ -72,9 +71,6 @@ Each alert includes:
 - `expires` - End time
 - `instruction` - What to do
 
-## Supported Feeds
+## Data Source
 
-Any CAP 1.2 compliant XML feed:
-
-- CHMI (Czech): `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
-- Other meteorological services with CAP feeds
+CHMI (Czech Hydrometeorological Institute): `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`

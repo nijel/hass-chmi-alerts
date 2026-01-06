@@ -1,6 +1,6 @@
-# Installation Guide for CAP Alerts
+# Installation Guide for CHMI Alerts
 
-This guide walks you through installing and configuring the CAP Alerts integration for Home Assistant.
+This guide walks you through installing and configuring the CHMI Alerts integration for Home Assistant.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ This guide walks you through installing and configuring the CAP Alerts integrati
 1. **Download the integration**
 
    - Download or clone this repository
-   - Copy the `custom_components/cap_alerts` directory to your Home Assistant `config/custom_components/` directory
+   - Copy the `custom_components/chmi_alerts` directory to your Home Assistant `config/custom_components/` directory
 
 1. **Restart Home Assistant**
 
@@ -33,8 +33,8 @@ Once this integration is added to HACS:
 1. Click on "Integrations"
 1. Click the three dots in the top right corner
 1. Select "Custom repositories"
-1. Add `https://github.com/nijel/hass-cap-alerts` as an integration
-1. Install "CAP Alerts"
+1. Add `https://github.com/nijel/hass-chmi-alerts` as an integration
+1. Install "CHMI Alerts"
 1. Restart Home Assistant
 
 ## Configuration
@@ -46,17 +46,12 @@ Once this integration is added to HACS:
    - Go to **Settings** → **Devices & Services**
    - Click **+ Add Integration**
 
-1. **Search for CAP Alerts**
+1. **Search for CHMI Alerts**
 
-   - Type "CAP Alerts" in the search box
-   - Click on the "CAP Alerts" integration
+   - Type "CHMI Alerts" in the search box
+   - Click on the "CHMI Alerts" integration
 
 1. **Configure the integration**
-
-   - **CAP Feed URL**: Enter the URL of your CAP XML feed
-
-     - For CHMI (Czech Republic): `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
-     - For other providers: Enter their CAP feed URL
 
    - **Area Filter** (optional): Enter an area name to filter alerts
 
@@ -73,23 +68,17 @@ Once this integration is added to HACS:
 1. **Complete setup**
 
    - Click **Submit**
-   - The integration will fetch the initial data
+   - The integration will fetch the initial data from CHMI
 
 ### Multiple Instances
 
-You can add multiple instances of the integration to monitor different feeds or areas:
+You can add multiple instances of the integration to monitor different areas:
 
-1. **Different areas from the same feed**
+1. **Different areas**
 
-   - Instance 1: CHMI feed, no filter (all alerts)
-   - Instance 2: CHMI feed, filter: "Prague" (Prague only)
-   - Instance 3: CHMI feed, filter: "Brno" (Brno only)
-
-1. **Different feeds**
-
-   - Instance 1: CHMI (Czech Republic)
-   - Instance 2: Another CAP provider
-   - Instance 3: Regional CAP feed
+   - Instance 1: No filter (all alerts)
+   - Instance 2: Filter: "Prague" (Prague only)
+   - Instance 3: Filter: "Brno" (Brno only)
 
 ## Verification
 
@@ -98,8 +87,8 @@ After configuration, verify the integration is working:
 1. **Check the sensor entity**
 
    - Go to **Developer Tools** → **States**
-   - Search for `sensor.cap_alerts_alert_count`
-   - You should see the entity with the current alert count
+   - Search for `binary_sensor.chmi_alerts_alert`
+   - You should see the entity with the current alert status
 
 1. **View alert details**
 
@@ -109,7 +98,7 @@ After configuration, verify the integration is working:
 1. **Check for errors**
 
    - Go to **Settings** → **System** → **Logs**
-   - Search for "cap_alerts"
+   - Search for "chmi_alerts"
    - There should be no errors (warnings are okay)
 
 ## Usage
@@ -132,9 +121,9 @@ See `examples/lovelace_card.yaml` for dashboard card examples.
 
 ### No data after configuration
 
-- Verify the feed URL is accessible
+- Verify the CHMI feed is accessible
 - Check the Home Assistant logs for errors
-- Try accessing the feed URL in your browser to ensure it's working
+- Try accessing https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml in your browser to ensure it's working
 
 ### Area filter not working
 
@@ -153,17 +142,17 @@ See `examples/lovelace_card.yaml` for dashboard card examples.
 1. **Remove the integration**
 
    - Go to **Settings** → **Devices & Services**
-   - Find "CAP Alerts"
+   - Find "CHMI Alerts"
    - Click the three dots and select **Delete**
 
 1. **Remove files** (optional)
 
-   - Delete the `custom_components/cap_alerts` directory
+   - Delete the `custom_components/chmi_alerts` directory
    - Restart Home Assistant
 
 ## Support
 
 For issues, questions, or feature requests:
 
-- GitHub Issues: https://github.com/nijel/hass-cap-alerts/issues
-- Discussions: https://github.com/nijel/hass-cap-alerts/discussions
+- GitHub Issues: https://github.com/nijel/hass-chmi-alerts/issues
+- Discussions: https://github.com/nijel/hass-chmi-alerts/discussions

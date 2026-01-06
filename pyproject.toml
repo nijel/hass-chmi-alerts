@@ -3,7 +3,7 @@ build-backend = "setuptools.build_meta"
 requires = ["setuptools==80.9.0"]
 
 [project]
-name = "homeassistant-cap-alerts"
+name = "homeassistant-chmi-alerts"
 requires-python = ">=3.12.0"
 version = "0.1.0"
 
@@ -174,6 +174,6 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"custom_components/cap_alerts/binary_sensor.py" = ["C901"]  # Existing code complexity
-"custom_components/cap_alerts/cap_parser.py" = ["C901", "S314"]  # Existing code complexity and XML security
+"custom_components/chmi_alerts/binary_sensor.py" = ["C901"]  # Existing code complexity
+"custom_components/chmi_alerts/cap_parser.py" = ["C901", "S314"]  # Existing code complexity and XML security
 "tests/test_parser_standalone.py" = ["T201", "BLE001"]  # Allow print statements and broad exception in standalone test file
