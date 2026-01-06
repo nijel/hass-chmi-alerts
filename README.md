@@ -126,8 +126,8 @@ automation:
       - condition: template
         value_template: >
           {# Check for severe alerts (Orange or Red) #}
-          {{ state_attr('binary_sensor.cap_alerts_alert', 'awareness_level').startswith('3;') 
-             or state_attr('binary_sensor.cap_alerts_alert', 'awareness_level').startswith('4;') }}
+          {% set level = state_attr('binary_sensor.cap_alerts_alert', 'awareness_level') %}
+          {{ level and (level.startswith('3;') or level.startswith('4;')) }}
     action:
       - service: notify.mobile_app
         data:
