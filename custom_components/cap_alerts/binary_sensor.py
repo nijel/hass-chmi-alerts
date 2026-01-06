@@ -135,7 +135,9 @@ class CAPAlertsBinarySensor(
                     type_id = parts[0].strip()
                     type_name = parts[1].strip()
                     # Capitalize the type name: "low-temperature" -> "Low-Temperature"
-                    type_name_formatted = type_name.replace("-", " ").title().replace(" ", "-")
+                    type_name_formatted = (
+                        type_name.replace("-", " ").title().replace(" ", "-")
+                    )
                     return f"{type_id}; {type_name_formatted}"
 
         # Fall back to deriving from event text
