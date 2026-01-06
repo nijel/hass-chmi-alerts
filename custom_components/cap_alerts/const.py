@@ -26,8 +26,6 @@ ATTR_SENDER = "sender"
 ATTR_INSTRUCTION = "instruction"
 ATTR_CATEGORY = "category"
 ATTR_RESPONSE_TYPE = "response_type"
-ATTR_AWARENESS_LEVEL = "awareness_level"
-ATTR_AWARENESS_TYPE = "awareness_type"
 
 # Awareness levels (compatible with meteoalarm)
 AWARENESS_LEVEL_GREEN = "green"
@@ -53,15 +51,6 @@ AWARENESS_ICONS = {
     AWARENESS_LEVEL_YELLOW: "mdi:alert",
     AWARENESS_LEVEL_ORANGE: "mdi:alert-circle",
     AWARENESS_LEVEL_RED: "mdi:alert-octagon",
-}
-
-# MeteoalarmCard-compatible awareness level format
-# Format: "level_id; Color" where level_id is 2-4
-AWARENESS_LEVEL_METEOALARM = {
-    AWARENESS_LEVEL_GREEN: "1; Green",
-    AWARENESS_LEVEL_YELLOW: "2; Yellow",
-    AWARENESS_LEVEL_ORANGE: "3; Orange",
-    AWARENESS_LEVEL_RED: "4; Red",
 }
 
 # Common CAP event types to Meteoalarm event type mapping
