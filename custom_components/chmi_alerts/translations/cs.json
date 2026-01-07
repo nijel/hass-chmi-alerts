@@ -9,7 +9,7 @@
           "language_filter": "Jazyk"
         },
         "data_description": {
-          "area_filter": "Vyberte konkrétní lokalitu pro filtrování výstrah podle kódu CISORP, nebo zvolte 'Všechny lokality' pro příjem všech výstrah.",
+          "area_filter": "Vyberte konkrétní lokalitu pro filtrování výstrah podle obce s rozšířenou působností, nebo zvolte 'Všechny lokality' pro příjem všech výstrah.",
           "language_filter": "Vyberte jazyk výstrah. ČHMÚ poskytuje výstrahy v češtině a angličtině."
         }
       }
@@ -17,9 +17,6 @@
     "error": {
       "cannot_connect": "Nepodařilo se připojit k ČHMÚ",
       "unknown": "Neočekávaná chyba"
-    },
-    "abort": {
-      "already_configured": "Integrace ČHMÚ s touto konfigurací je již nastavena"
     }
   }
 }
