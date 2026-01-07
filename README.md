@@ -32,7 +32,8 @@ Add the integration through the Home Assistant UI:
 1. Go to **Settings** → **Devices & Services**
 1. Click **Add Integration**
 1. Search for "CHMI Alerts"
-1. Optionally enter an **Area Filter** to receive alerts for specific regions (e.g., "Prague")
+1. Optionally enter an **Area Filter** to receive alerts for specific regions
+   - Examples: "Prague", "Bohemia", or geocodes like "2102"
    - Leave empty to receive all alerts for the entire country
    - You can add multiple instances to monitor different regions
 
