@@ -18,5 +18,13 @@
       "cannot_connect": "Failed to connect to CHMI",
       "unknown": "Unexpected error"
     }
+  },
+  "selector": {
+    "language_filter": {
+      "options": {
+        "cs": "Czech",
+        "en": "English"
+      }
+    }
   }
 }

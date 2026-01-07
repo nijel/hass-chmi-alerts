@@ -18,5 +18,13 @@
       "cannot_connect": "Nepodařilo se připojit k ČHMÚ",
       "unknown": "Neočekávaná chyba"
     }
+  },
+  "selector": {
+    "language_filter": {
+      "options": {
+        "cs": "Čeština",
+        "en": "Angličtina"
+      }
+    }
   }
 }
