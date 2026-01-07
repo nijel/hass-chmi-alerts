@@ -26,5 +26,12 @@
         "en": "Angličtina"
       }
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "alert": {
+        "name": "Výstrahy"
+      }
+    }
   }
 }

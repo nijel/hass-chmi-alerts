@@ -10,6 +10,13 @@ CONF_LANGUAGE_FILTER = "language_filter"
 DEFAULT_SCAN_INTERVAL = 3600  # 1 hour
 CHMI_FEED_URL = "https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml"
 
+# Entity name translations
+# Maps language code to the translated word for "Alerts"
+ENTITY_NAME_TRANSLATIONS = {
+    "cs": "Výstrahy",
+    "en": "Alerts",
+}
+
 # Attributes
 ATTR_HEADLINE = "headline"
 ATTR_DESCRIPTION = "description"

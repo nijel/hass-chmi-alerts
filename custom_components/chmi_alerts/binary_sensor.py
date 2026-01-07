@@ -36,7 +36,10 @@ from .const import (
     AWARENESS_LEVEL_ORANGE,
     AWARENESS_LEVEL_RED,
     AWARENESS_LEVEL_YELLOW,
+    CISORP_CODE_TO_NAME,
+    CONF_AREA_FILTER,
     DOMAIN,
+    ENTITY_NAME_TRANSLATIONS,
     EVENT_TYPE_METEOALARM,
     SEVERITY_TO_AWARENESS,
 )
@@ -80,8 +83,42 @@ class CAPAlertsBinarySensor(
     ) -> None:
         """Initialize the binary sensor."""
         super().__init__(coordinator)
-        self._attr_unique_id = f"{entry.entry_id}_alert"
-        self._attr_name = "Alert"
+
+        # Get area information from config entry
+        area_code = entry.data.get(CONF_AREA_FILTER, "")
+        area_name = CISORP_CODE_TO_NAME.get(area_code, "") if area_code else ""
+
+        # Build unique_id - use area code if available for uniqueness
+        if area_code:
+            self._attr_unique_id = f"{entry.entry_id}_chmi_alerts_{area_code}"
+        else:
+            self._attr_unique_id = f"{entry.entry_id}_chmi_alerts"
+
+        # Use translation key only when no area is specified
+        # When area is specified, we'll build the name with location in the name property
+        if not area_name:
+            self._attr_translation_key = "alert"
+
+        # Store area name for use in name property
+        self._area_name = area_name
+        self._hass = coordinator.hass
+
+    @property
+    def name(self) -> str | None:
+        """Return the name of the entity.
+
+        Returns localized name with location if available.
+        """
+        if self._area_name:
+            # Build localized name with area
+            # Get the translated base word for "Alerts"
+            language = self._hass.config.language if self._hass else "en"
+            base_name = ENTITY_NAME_TRANSLATIONS.get(language, "Alerts")
+
+            return f"{base_name} {self._area_name}"
+
+        # Return None to use the default translated name from translation_key
+        return None
 
     def _get_highest_awareness_level(self) -> str:
         """Get the highest awareness level from active alerts."""

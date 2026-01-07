@@ -26,5 +26,12 @@
         "en": "English"
       }
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "alert": {
+        "name": "Alerts"
+      }
+    }
   }
 }
