@@ -32,9 +32,8 @@ Add the integration through the Home Assistant UI:
 1. Go to **Settings** → **Devices & Services**
 1. Click **Add Integration**
 1. Search for "CHMI Alerts"
-1. Optionally enter an **Area Filter** to receive alerts for specific regions
-   - Examples: "Prague", "Bohemia", or geocodes like "2102"
-   - Leave empty to receive all alerts for the entire country
+1. Select a location from the dropdown to filter alerts for that region
+   - Choose "All locations (no filter)" to receive all alerts for the entire country
    - You can add multiple instances to monitor different regions
 
 ## Usage
@@ -111,6 +110,8 @@ card:
 ## About CHMI
 
 CHMI (Czech Hydrometeorological Institute / Český hydrometeorologický ústav) is the official meteorological service of the Czech Republic. This integration fetches weather alerts using the CAP (Common Alerting Protocol) v1.2 standard from their public feed.
+
+Feed URL: `https://vystrahy-cr.chmi.cz/data/XOCZ50_OKPR.xml`
 
 ## License
 
