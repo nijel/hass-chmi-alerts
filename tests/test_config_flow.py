@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import Mock
 
 import pytest
 from homeassistant.data_entry_flow import FlowResultType
@@ -81,20 +81,16 @@ async def test_form_create_entry():
     flow = CHMIAlertsConfigFlow()
     flow.hass = mock_hass
 
-    # Mock the async_set_unique_id method
-    flow.async_set_unique_id = AsyncMock()
-    flow._abort_if_unique_id_configured = Mock()  # noqa: SLF001
-
-    # Provide user input
+    # Provide user input with a CISORP code
     user_input = {
-        CONF_AREA_FILTER: "Prague",
+        CONF_AREA_FILTER: "1000",  # Prague CISORP code
         CONF_LANGUAGE_FILTER: "cs",
     }
 
     result = await flow.async_step_user(user_input)
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["title"] == "Prague"
+    assert result["title"] == "Praha"  # Location name for code 1000
     assert result["data"] == user_input
     assert result["data"][CONF_LANGUAGE_FILTER] == "cs"
 
@@ -108,12 +104,9 @@ async def test_form_create_entry_no_area_filter():
     flow = CHMIAlertsConfigFlow()
     flow.hass = mock_hass
 
-    # Mock the async_set_unique_id method
-    flow.async_set_unique_id = AsyncMock()
-    flow._abort_if_unique_id_configured = Mock()  # noqa: SLF001
-
-    # Provide user input without area filter
+    # Provide user input without area filter (empty string for all locations)
     user_input = {
+        CONF_AREA_FILTER: "",
         CONF_LANGUAGE_FILTER: "en",
     }
 

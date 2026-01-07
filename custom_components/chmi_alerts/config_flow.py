@@ -5,13 +5,13 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
 from .const import (
+    CISORP_CODE_TO_NAME,
     CONF_AREA_FILTER,
     CONF_LANGUAGE_FILTER,
     DOMAIN,
@@ -32,15 +32,19 @@ class CHMIAlertsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            # Create a unique ID for CHMI alerts
-            # Since we only support one CHMI feed, we can use a static ID
-            # but allow multiple instances with different area filters
-            unique_id = f"chmi_{user_input.get(CONF_AREA_FILTER, 'all')}"
-            await self.async_set_unique_id(unique_id)
-            self._abort_if_unique_id_configured()
+            # Create entry without unique_id check (allow multiple instances)
+            # Get friendly title from location code
+            area_code = user_input.get(CONF_AREA_FILTER, "")
+            if area_code and area_code in CISORP_CODE_TO_NAME:
+                title = CISORP_CODE_TO_NAME[area_code]
+            elif area_code:
+                # Fallback for any unexpected code
+                title = area_code
+            else:
+                title = "CHMI Alerts"
 
             return self.async_create_entry(
-                title=user_input.get(CONF_AREA_FILTER) or "CHMI Alerts",
+                title=title,
                 data=user_input,
             )
 
@@ -50,9 +54,23 @@ class CHMIAlertsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self.hass.config.language == "cs":
             default_language = "cs"
 
+        # Build location options for the selector
+        location_options = [
+            selector.SelectOptionDict(value="", label="All locations (no filter)")
+        ]
+        for code, name in CISORP_CODE_TO_NAME.items():
+            location_options.append(
+                selector.SelectOptionDict(value=code, label=f"{name} ({code})")
+            )
+
         data_schema = vol.Schema(
             {
-                vol.Optional(CONF_AREA_FILTER): cv.string,
+                vol.Optional(CONF_AREA_FILTER, default=""): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=location_options,
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    )
+                ),
                 vol.Optional(
                     CONF_LANGUAGE_FILTER, default=default_language
                 ): selector.SelectSelector(
