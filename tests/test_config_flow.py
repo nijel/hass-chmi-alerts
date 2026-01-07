@@ -90,7 +90,7 @@ async def test_form_create_entry():
     result = await flow.async_step_user(user_input)
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["title"] == "1000"
+    assert result["title"] == "Praha"  # Location name for code 1000
     assert result["data"] == user_input
     assert result["data"][CONF_LANGUAGE_FILTER] == "cs"
 

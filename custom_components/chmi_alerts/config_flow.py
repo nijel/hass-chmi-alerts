@@ -11,6 +11,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
 from .const import (
+    CISORP_CODE_TO_NAME,
     CISORP_LOCATIONS,
     CONF_AREA_FILTER,
     CONF_LANGUAGE_FILTER,
@@ -33,8 +34,18 @@ class CHMIAlertsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             # Create entry without unique_id check (allow multiple instances)
+            # Get friendly title from location code
+            area_code = user_input.get(CONF_AREA_FILTER, "")
+            if area_code and area_code in CISORP_CODE_TO_NAME:
+                title = CISORP_CODE_TO_NAME[area_code]
+            elif area_code:
+                # Fallback for any unexpected code
+                title = area_code
+            else:
+                title = "CHMI Alerts"
+
             return self.async_create_entry(
-                title=user_input.get(CONF_AREA_FILTER) or "CHMI Alerts",
+                title=title,
                 data=user_input,
             )
 
