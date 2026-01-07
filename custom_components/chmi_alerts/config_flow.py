@@ -57,11 +57,9 @@ class CHMIAlertsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_LANGUAGE_FILTER, default=default_language
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
-                        options=[
-                            selector.SelectOptionDict(value="cs", label="Czech"),
-                            selector.SelectOptionDict(value="en", label="English"),
-                        ],
+                        options=["cs", "en"],
                         mode=selector.SelectSelectorMode.DROPDOWN,
+                        translation_key=CONF_LANGUAGE_FILTER,
                     )
                 ),
             }

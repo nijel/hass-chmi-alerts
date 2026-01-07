@@ -21,5 +21,13 @@
     "abort": {
       "already_configured": "This CHMI area filter is already configured"
     }
+  },
+  "selector": {
+    "language_filter": {
+      "options": {
+        "cs": "Czech",
+        "en": "English"
+      }
+    }
   }
 }

@@ -21,5 +21,13 @@
     "abort": {
       "already_configured": "Tento filtr oblasti ČHMÚ je již nakonfigurován"
     }
+  },
+  "selector": {
+    "language_filter": {
+      "options": {
+        "cs": "Čeština",
+        "en": "Angličtina"
+      }
+    }
   }
 }
