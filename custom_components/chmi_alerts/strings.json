@@ -5,11 +5,11 @@
         "title": "Configure CHMI Alerts",
         "description": "Set up CHMI (Czech Hydrometeorological Institute) weather alerts",
         "data": {
-          "area_filter": "Area Filter (optional)",
+          "area_filter": "Location",
           "language_filter": "Language"
         },
         "data_description": {
-          "area_filter": "Filter alerts by area name or geocode (e.g., CISORP code). Matches against areaDesc and geocode tags. Leave empty to receive all alerts. See https://apl2.czso.cz/iSMS/cisdet.jsp?kodcis=65 for CISORP codes.",
+          "area_filter": "Select a specific location to filter alerts by CISORP code, or choose 'All locations' to receive all alerts.",
           "language_filter": "Select the language for alerts. CHMI provides alerts in Czech and English."
         }
       }
@@ -19,7 +19,7 @@
       "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "This CHMI area filter is already configured"
+      "already_configured": "A CHMI integration with this configuration is already set up"
     }
   }
 }

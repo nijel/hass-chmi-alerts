@@ -5,11 +5,11 @@
         "title": "Konfigurace CHMI výstrah",
         "description": "Nastavení výstrah ČHMÚ (Český hydrometeorologický ústav)",
         "data": {
-          "area_filter": "Filtr oblasti (volitelné)",
+          "area_filter": "Lokalita",
           "language_filter": "Jazyk"
         },
         "data_description": {
-          "area_filter": "Filtrování výstrah podle názvu oblasti nebo geokódu (např. kód CISORP). Filtruje proti tagům areaDesc a geocode. Ponechte prázdné pro příjem všech výstrah. Kódy CISORP viz https://apl2.czso.cz/iSMS/cisdet.jsp?kodcis=65.",
+          "area_filter": "Vyberte konkrétní lokalitu pro filtrování výstrah podle kódu CISORP, nebo zvolte 'Všechny lokality' pro příjem všech výstrah.",
           "language_filter": "Vyberte jazyk výstrah. ČHMÚ poskytuje výstrahy v češtině a angličtině."
         }
       }
@@ -19,7 +19,7 @@
       "unknown": "Neočekávaná chyba"
     },
     "abort": {
-      "already_configured": "Tento filtr oblasti ČHMÚ je již nakonfigurován"
+      "already_configured": "Integrace ČHMÚ s touto konfigurací je již nastavena"
     }
   }
 }
