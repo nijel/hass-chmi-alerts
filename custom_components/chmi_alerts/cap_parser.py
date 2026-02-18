@@ -474,7 +474,7 @@ def _parse_alert_element(alert_elem: ET.Element) -> dict[str, Any] | None:
     if info_list:
         alert_data["info"] = info_list
 
-    return alert_data if alert_data else None
+    return alert_data or None
 
 
 def _parse_info_element(info_elem: ET.Element, ns: str) -> dict[str, Any]:
