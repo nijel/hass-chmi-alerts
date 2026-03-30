@@ -48,7 +48,7 @@ class CHMIAlertsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data=user_input,
             )
 
-        # Pre-select language based on Home Assistant configuration
+        # Preselect language based on Home Assistant configuration
         # Default to Czech if Home Assistant is using Czech language, English otherwise
         default_language = "en"
         if self.hass.config.language == "cs":
